@@ -44,6 +44,8 @@ using namespace QuantLib;
 using namespace std;
 using namespace boost::unit_test_framework;
 
+#ifndef QL_PATCH_SOLARIS
+
 namespace {
 
     Real hwAttachment[] = { 0.00, 0.03, 0.06, 0.10 };
@@ -90,7 +92,11 @@ namespace {
 
 }
 
+#endif
+
+
 void CdoTest::testHW(unsigned dataSet) {
+    #ifndef QL_PATCH_SOLARIS
 
     BOOST_TEST_MESSAGE ("Testing CDO premiums against Hull-White values"
                         " for data set " << dataSet << "...");
@@ -359,13 +365,18 @@ void CdoTest::testHW(unsigned dataSet) {
                 absoluteTolerance[im], relativeTolerancePeriod[im]);
         }
     }
+    #endif
 }
 
 
-test_suite* CdoTest::suite() {
+test_suite* CdoTest::suite(SpeedLevel speed) {
     test_suite* suite = BOOST_TEST_SUITE("CDO tests");
-    for (unsigned i=0; i < LENGTH(hwData7); ++i)
-        suite->add(QUANTLIB_TEST_CASE(
-            boost::bind(&CdoTest::testHW, i)));
+    #ifndef QL_PATCH_SOLARIS
+    if (speed == Slow) {
+        for (unsigned i=0; i < LENGTH(hwData7); ++i)
+            suite->add(QUANTLIB_TEST_CASE(
+                boost::bind(&CdoTest::testHW, i)));
+    }
+    #endif
     return suite;
 }
