@@ -122,6 +122,7 @@ QL_TESTS = \
 	sampledcurve.hpp sampledcurve.cpp \
 	schedule.hpp schedule.cpp \
 	shortratemodels.hpp shortratemodels.cpp \
+	sofrfutures.hpp sofrfutures.cpp \
 	solvers.hpp solvers.cpp \
 	spreadoption.hpp spreadoption.cpp \
 	squarerootclvmodel.hpp squarerootclvmodel.cpp \
@@ -134,6 +135,7 @@ QL_TESTS = \
 	swaptionvolstructuresutilities.hpp \
 	swingoption.hpp swingoption.cpp \
 	termstructures.hpp termstructures.cpp \
+	timegrid.hpp timegrid.cpp \
 	timeseries.hpp timeseries.cpp \
 	transformedgrid.hpp transformedgrid.cpp \
 	tqreigendecomposition.hpp tqreigendecomposition.cpp \

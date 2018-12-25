@@ -748,6 +748,7 @@
     <ClCompile Include="sampledcurve.cpp" />
     <ClCompile Include="schedule.cpp" />
     <ClCompile Include="shortratemodels.cpp" />
+    <ClCompile Include="sofrfutures.cpp" />
     <ClCompile Include="solvers.cpp" />
     <ClCompile Include="spreadoption.cpp" />
     <ClCompile Include="squarerootclvmodel.cpp" />
@@ -759,6 +760,7 @@
     <ClCompile Include="swaptionvolatilitymatrix.cpp" />
     <ClCompile Include="swingoption.cpp" />
     <ClCompile Include="termstructures.cpp" />
+    <ClCompile Include="timegrid.cpp" />
     <ClCompile Include="timeseries.cpp" />
     <ClCompile Include="tqreigendecomposition.cpp" />
     <ClCompile Include="tracing.cpp" />
@@ -896,6 +898,7 @@
     <ClInclude Include="sampledcurve.hpp" />
     <ClInclude Include="schedule.hpp" />
     <ClInclude Include="shortratemodels.hpp" />
+    <ClInclude Include="sofrfutures.hpp" />
     <ClInclude Include="solvers.hpp" />
     <ClInclude Include="speedlevel.hpp" />
     <ClInclude Include="spreadoption.hpp" />
@@ -909,6 +912,7 @@
     <ClInclude Include="swaptionvolstructuresutilities.hpp" />
     <ClInclude Include="swingoption.hpp" />
     <ClInclude Include="termstructures.hpp" />
+    <ClInclude Include="timegrid.hpp" />
     <ClInclude Include="timeseries.hpp" />
     <ClInclude Include="tqreigendecomposition.hpp" />
     <ClInclude Include="tracing.hpp" />
