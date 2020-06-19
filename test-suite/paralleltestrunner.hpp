@@ -31,6 +31,8 @@
 #define quantlib_parallel_test_runner_hpp
 
 #include <ql/types.hpp>
+#include <ql/errors.hpp>
+#include <ql/functional.hpp>
 
 #ifdef VERSION
 /* This comes from ./configure, and for some reason it interferes with
@@ -38,7 +40,7 @@
 #undef VERSION
 #endif
 
-#include <boost/timer.hpp>
+#include <boost/timer/timer.hpp>
 #include <boost/thread/thread.hpp>
 #include <boost/interprocess/ipc/message_queue.hpp>
 #include <boost/interprocess/sync/scoped_lock.hpp>
@@ -61,6 +63,12 @@
 #include <cstdlib>
 
 #ifdef BOOST_MSVC
+#  define BOOST_LIB_NAME boost_timer
+#  include <boost/config/auto_link.hpp>
+#  undef BOOST_LIB_NAME
+#  define BOOST_LIB_NAME boost_chrono
+#  include <boost/config/auto_link.hpp>
+#  undef BOOST_LIB_NAME
 #  define BOOST_LIB_NAME boost_system
 #  include <boost/config/auto_link.hpp>
 #  undef BOOST_LIB_NAME
@@ -104,7 +112,7 @@ namespace {
         }
 
         void visit(test_case const& tc) {
-            if (test_enabled(tc.p_id))
+            if (test_enabled(tc.p_id) != 0u)
                 idMap_[tc.p_parent_id].push_back(tc.p_id);
         }
 
@@ -160,7 +168,7 @@ namespace {
 
         for (std::vector<std::string>::const_iterator iter = tok.begin();
             iter != tok.end(); ++iter) {
-            if (iter->length() && iter->compare("Running 1 test case...")) {
+            if ((iter->length() != 0u) && (iter->compare("Running 1 test case...") != 0)) {
                 out << *iter  << std::endl;
             }
         }
@@ -202,9 +210,9 @@ int main( int argc, char* argv[] )
 
             std::ifstream in(profileFileName);
             if (in.good()) {
-                for (std::string line; std::getline(in, line);) {
+                for (std::string line; std::getline(in, line) != 0;) {
                     std::vector<std::string> tok;
-                    boost::split(tok, line, boost::is_any_of(" "));
+                    boost::split(tok, line, boost::is_any_of(":"));
 
                     QL_REQUIRE(tok.size() == 2,
                         "every line should consists of two entries");
@@ -266,15 +274,14 @@ int main( int argc, char* argv[] )
                 sizeof(RuntimeLog));
 
             // run root test cases in master process
-            const std::list<test_unit_id> qlRoot
-                = (tcc.map().count(tcc.testSuiteId()))
-                    ? tcc.map().find(tcc.testSuiteId())->second
-                    : std::list<test_unit_id>();
+            const std::list<test_unit_id> qlRoot = (tcc.map().count(tcc.testSuiteId())) != 0u ?
+                                                       tcc.map().find(tcc.testSuiteId())->second :
+                                                       std::list<test_unit_id>();
 
             // fork worker processes
             boost::thread_group threadGroup;
             for (unsigned i=0; i < nProc; ++i) {
-                threadGroup.create_thread(ext::bind(worker, cmd.str()));
+                threadGroup.create_thread(QuantLib::ext::bind(worker, cmd.str()));
             }
 
             struct mutex_remove {
@@ -305,7 +312,7 @@ int main( int argc, char* argv[] )
                         const std::string name
                             = framework::get(*it, TUT_ANY).p_name;
 
-                        if (runTimeLog.count(name)) {
+                        if (runTimeLog.count(name) != 0u) {
                             testsSortedByRunTime.insert(
                                 std::make_pair(runTimeLog[name], *it));
                         }
@@ -367,7 +374,7 @@ int main( int argc, char* argv[] )
             out << std::setprecision(6);
             for (std::map<std::string, QuantLib::Time>::const_iterator
                 iter = runTimeLog.begin(); iter != runTimeLog.end(); ++iter) {
-                out << iter->first << " " << iter->second << std::endl;
+                out << iter->first << ":" << iter->second << std::endl;
             }
             out.close();
 
@@ -398,7 +405,7 @@ int main( int argc, char* argv[] )
             message_queue rq(open_only, testResultQueueName);
 
             while (!id.terminate) {
-                boost::timer t;
+                boost::timer::cpu_timer t;
 
                 #if BOOST_VERSION < 106200
                     BOOST_TEST_FOREACH( test_observer*, to,
@@ -417,7 +424,7 @@ int main( int argc, char* argv[] )
                 #endif
 
                 runTimeLogs.push_back(std::make_pair(
-                    framework::get(id.id, TUT_ANY).p_name, t.elapsed()));
+                    framework::get(id.id, TUT_ANY).p_name, t.elapsed().wall));
 
                 output_logstream(log_stream(), oldBuf, logBuf);
 

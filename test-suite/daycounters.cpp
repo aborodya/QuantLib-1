@@ -40,7 +40,7 @@
 using namespace QuantLib;
 using namespace boost::unit_test_framework;
 
-namespace {
+namespace day_counters_test {
 
     struct SingleCase {
         SingleCase(ActualActual::Convention convention,
@@ -66,18 +66,16 @@ namespace {
     };
 
     Time ISMAYearFractionWithReferenceDates(
-                                  DayCounter dayCounter, Date start, Date end,
-                                  Date refStart, Date refEnd) {
+        const DayCounter& dayCounter, Date start, Date end, Date refStart, Date refEnd) {
         Real referenceDayCount = Real(dayCounter.dayCount(refStart, refEnd));
         // guess how many coupon periods per year:
-        Integer couponsPerYear = (Integer) round(365.0 / referenceDayCount);
+        Integer couponsPerYear = (Integer)(0.5 + 365.0 / referenceDayCount);
         // the above is good enough for annual or semi annual payments.
         return Real(dayCounter.dayCount(start, end))
             / (referenceDayCount*couponsPerYear);
     }
 
-    Time actualActualDaycountComputation(Schedule schedule,
-                                         Date start, Date end) {
+    Time actualActualDaycountComputation(const Schedule& schedule, Date start, Date end) {
 
         DayCounter daycounter = ActualActual(ActualActual::ISMA, schedule);
         Time yearFraction = 0.0;
@@ -104,6 +102,8 @@ namespace {
 void DayCounterTest::testActualActual() {
 
     BOOST_TEST_MESSAGE("Testing actual/actual day counters...");
+
+    using namespace day_counters_test;
 
     SingleCase testCases[] = {
         // first example
@@ -213,6 +213,8 @@ void DayCounterTest::testActualActualWithSemiannualSchedule() {
 
     BOOST_TEST_MESSAGE("Testing actual/actual with schedule "
                        "for undefined semiannual reference periods...");
+
+    using namespace day_counters_test;
 
     Calendar calendar = UnitedStates();
     Date fromDate = Date(10, January, 2017);
@@ -330,6 +332,8 @@ void DayCounterTest::testActualActualWithAnnualSchedule(){
     BOOST_TEST_MESSAGE("Testing actual/actual with schedule "
                        "for undefined annual reference periods...");
 
+    using namespace day_counters_test;
+
     // Now do an annual schedule
     Calendar calendar = UnitedStates();
     Schedule schedule = MakeSchedule()
@@ -348,7 +352,7 @@ void DayCounterTest::testActualActualWithAnnualSchedule(){
     DayCounter dayCounter = ActualActual(ActualActual::ISMA, schedule);
 
     while (testDate < referencePeriodEnd) {
-        float difference =
+        Time difference =
             ISMAYearFractionWithReferenceDates(dayCounter,
                                                testDate, referencePeriodEnd,
                                                referencePeriodStart, referencePeriodEnd) -
@@ -368,6 +372,8 @@ void DayCounterTest::testActualActualWithAnnualSchedule(){
 void DayCounterTest::testActualActualWithSchedule() {
 
     BOOST_TEST_MESSAGE("Testing actual/actual day counter with schedule...");
+
+    using namespace day_counters_test;
 
     // long first coupon
     Date issueDateExpected = Date(17, January, 2017);
@@ -768,6 +774,26 @@ void DayCounterTest::testThirty360_EurobondBasis() {
 }
 
 
+void DayCounterTest::testThirty360_German() {
+    BOOST_TEST_MESSAGE("Testing 30/360 (German) day counter...");
+
+    Thirty360 dayCounter(Thirty360::German);
+
+    Date start(5, February, 2020);
+    Date end(29, February, 2020);
+
+    Date::serial_type calculated = dayCounter.dayCount(start, end);
+    Date::serial_type expected = 25;  // 30 - 5, as 29 is adjusted
+
+    if (calculated != expected) {
+        BOOST_ERROR("Day count from " << start
+                    << " to " << end << ":\n"
+                    << "    calculated: " << calculated << "\n"
+                    << "    expected:   " << expected);
+    }
+}
+
+
 void DayCounterTest::testActual365_Canadian() {
 
     BOOST_TEST_MESSAGE("Testing that Actual 365 (Canadian) throws when needed...");
@@ -842,6 +868,7 @@ test_suite* DayCounterTest::suite() {
     suite->add(QUANTLIB_TEST_CASE(&DayCounterTest::testBusiness252));
     suite->add(QUANTLIB_TEST_CASE(&DayCounterTest::testThirty360_BondBasis));
     suite->add(QUANTLIB_TEST_CASE(&DayCounterTest::testThirty360_EurobondBasis));
+    suite->add(QUANTLIB_TEST_CASE(&DayCounterTest::testThirty360_German));
     suite->add(QUANTLIB_TEST_CASE(&DayCounterTest::testActual365_Canadian));
 
 #ifdef QL_HIGH_RESOLUTION_DATE

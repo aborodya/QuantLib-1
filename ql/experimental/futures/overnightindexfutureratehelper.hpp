@@ -2,6 +2,7 @@
 
 /*
  Copyright (C) 2018 Roy Zywina
+ Copyright (C) 2019 Eisuke Tani
 
  This file is part of QuantLib, a free-software/open-source library
  for financial quantitative analysts and developers - http://quantlib.org/
@@ -31,15 +32,16 @@ namespace QuantLib {
 
     //! RateHelper for bootstrapping over overnight compounding futures
     class OvernightIndexFutureRateHelper : public RateHelper {
-    public:
-        OvernightIndexFutureRateHelper(
-          const Handle<Quote>& price,
-          // first day of reference period
-          const Date& valueDate,
-          // delivery date
-          const Date& maturityDate,
-          const ext::shared_ptr<OvernightIndex>& overnightIndex,
-          const Handle<Quote>& convexityAdjustment = Handle<Quote>());
+      public:
+        OvernightIndexFutureRateHelper(const Handle<Quote>& price,
+                                       // first day of reference period
+                                       const Date& valueDate,
+                                       // delivery date
+                                       const Date& maturityDate,
+                                       const ext::shared_ptr<OvernightIndex>& overnightIndex,
+                                       const Handle<Quote>& convexityAdjustment = Handle<Quote>(),
+                                       OvernightIndexFuture::NettingType subPeriodsNettingType =
+                                           OvernightIndexFuture::Compounding);
 
         //! \name RateHelper interface
         //@{
@@ -51,36 +53,37 @@ namespace QuantLib {
         void accept(AcyclicVisitor&);
         //@}
         Real convexityAdjustment() const;
-    private:
+      private:
         ext::shared_ptr<OvernightIndexFuture> future_;
         RelinkableHandle<YieldTermStructure> termStructureHandle_;
     };
 
-    /*!
-    RateHelper for bootstrapping over CME SOFR futures
+    //! RateHelper for bootstrapping over CME SOFR futures
+    /*! It compounds overnight SOFR rates from the third Wednesday
+        of the reference month/year (inclusive) to the third Wednesday
+        of the month one Month/Quarter later (exclusive).
 
-    Compounds with overnight SOFR rates from the third Wednesday of the
-    reference month/year (inclusive) to the third Wednesday of the month
-    one Month/Quarter later (exclusive).
-
-    Requires index history populated when reference period starts in the past.
+        It requires the index history to be populated when the
+        reference period starts in the past.
     */
     class SofrFutureRateHelper : public OvernightIndexFutureRateHelper {
-    public:
-        SofrFutureRateHelper(
-            const Handle<Quote>& price,
-            Month referenceMonth,
-            Year referenceYear,
-            Frequency referenceFreq,
-            const ext::shared_ptr<OvernightIndex>& overnightIndex,
-            const Handle<Quote>& convexityAdjustment = Handle<Quote>());
-        SofrFutureRateHelper(
-            Real price,
-            Month referenceMonth,
-            Year referenceYear,
-            Frequency referenceFreq,
-            const ext::shared_ptr<OvernightIndex>& overnightIndex,
-            Real convexityAdjustment = 0);
+      public:
+        SofrFutureRateHelper(const Handle<Quote>& price,
+                             Month referenceMonth,
+                             Year referenceYear,
+                             Frequency referenceFreq,
+                             const ext::shared_ptr<OvernightIndex>& overnightIndex,
+                             const Handle<Quote>& convexityAdjustment = Handle<Quote>(),
+                             OvernightIndexFuture::NettingType subPeriodsNettingType =
+                                 OvernightIndexFuture::Compounding);
+        SofrFutureRateHelper(Real price,
+                             Month referenceMonth,
+                             Year referenceYear,
+                             Frequency referenceFreq,
+                             const ext::shared_ptr<OvernightIndex>& overnightIndex,
+                             Real convexityAdjustment = 0,
+                             OvernightIndexFuture::NettingType subPeriodsNettingType =
+                                 OvernightIndexFuture::Compounding);
     };
 
 }

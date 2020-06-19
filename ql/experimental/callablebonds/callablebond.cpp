@@ -411,7 +411,7 @@ namespace QuantLib {
             if (!cashflows_[i]->hasOccurred(settlement,IncludeToday)) {
                 ext::shared_ptr<Coupon> coupon =
                     ext::dynamic_pointer_cast<Coupon>(cashflows_[i]);
-                if (coupon)
+                if (coupon != 0)
                     // !!!
                     return coupon->accruedAmount(settlement) /
                            notional(settlement) * 100.0;
@@ -467,8 +467,7 @@ namespace QuantLib {
                 arguments->callabilityPrices.push_back(
                                        putCallSchedule_[i]->price().amount());
 
-                if (putCallSchedule_[i]->price().type()==
-                    Callability::Price::Clean) {
+                if (putCallSchedule_[i]->price().type() == Bond::Price::Clean) {
                     /* calling accrued() forces accrued interest to be zero
                        if future option date is also coupon date, so that dirty
                        price = clean price. Use here because callability is
