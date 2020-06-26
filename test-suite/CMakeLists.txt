@@ -55,6 +55,7 @@ set(QuantLib-Test_SRC
     fastfouriertransform.cpp
     fdcev.cpp
     fdheston.cpp
+    fdcir.cpp
     fdmlinearop.cpp
     fdsabr.cpp
     fittedbonddiscountcurve.cpp
@@ -69,6 +70,7 @@ set(QuantLib-Test_SRC
     hestonslvmodel.cpp
     himalayaoption.cpp
     hybridhestonhullwhiteprocess.cpp
+    indexes.cpp
     inflation.cpp
     inflationcapfloor.cpp
     inflationcapflooredcoupon.cpp
@@ -166,7 +168,7 @@ if (USE_BOOST_DYNAMIC_LIBRARIES)
     add_definitions(-DBOOST_TEST_DYN_LINK)
 endif()
 
-find_package (Boost COMPONENTS unit_test_framework timer system REQUIRED)
+find_package (Boost REQUIRED COMPONENTS unit_test_framework timer system OPTIONAL_COMPONENTS chrono)
 
 set (TEST quantlib-test-suite)
 add_executable (${TEST} ${QuantLib-Test_SRC})

@@ -42,15 +42,15 @@ namespace QuantLib {
 
     class HestonSLVMCModel : public LazyObject {
       public:
-        HestonSLVMCModel(
-            const Handle<LocalVolTermStructure>& localVol,
-            const Handle<HestonModel>& hestonModel,
-            const ext::shared_ptr<BrownianGeneratorFactory>& brownianGeneratorFactory,
-            const Date& endDate,
-            Size timeStepsPerYear = 365,
-            Size nBins = 201,
-            Size calibrationPaths = (1 << 15),
-            const std::vector<Date>& mandatoryDates = std::vector<Date>());
+        HestonSLVMCModel(const Handle<LocalVolTermStructure>& localVol,
+                         const Handle<HestonModel>& hestonModel,
+                         const ext::shared_ptr<BrownianGeneratorFactory>& brownianGeneratorFactory,
+                         const Date& endDate,
+                         Size timeStepsPerYear = 365,
+                         Size nBins = 201,
+                         Size calibrationPaths = (1 << 15),
+                         const std::vector<Date>& mandatoryDates = std::vector<Date>(),
+                         Real mixingFactor = 1.0);
 
         ext::shared_ptr<HestonProcess> hestonProcess() const;
         ext::shared_ptr<LocalVolTermStructure> localVol() const;
@@ -65,6 +65,7 @@ namespace QuantLib {
         const ext::shared_ptr<BrownianGeneratorFactory> brownianGeneratorFactory_;
         const Date endDate_;
         const Size nBins_, calibrationPaths_;
+        const Real mixingFactor_;
         ext::shared_ptr<TimeGrid> timeGrid_;
 
         mutable ext::shared_ptr<FixedLocalVolSurface> leverageFunction_;

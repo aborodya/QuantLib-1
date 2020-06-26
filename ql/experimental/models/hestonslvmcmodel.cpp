@@ -44,13 +44,15 @@ namespace QuantLib {
         Size timeStepsPerYear,
         Size nBins,
         Size calibrationPaths,
-        const std::vector<Date>& mandatoryDates)
+        const std::vector<Date>& mandatoryDates,
+        const Real mixingFactor)
     : localVol_(localVol),
       hestonModel_(hestonModel),
       brownianGeneratorFactory_(brownianGeneratorFactory),
       endDate_(endDate),
       nBins_(nBins),
-      calibrationPaths_(calibrationPaths) {
+      calibrationPaths_(calibrationPaths),
+      mixingFactor_(mixingFactor) {
 
         registerWith(localVol_);
         registerWith(hestonModel_);
@@ -120,7 +122,7 @@ namespace QuantLib {
             vStrikes, L, dc);
 
         const ext::shared_ptr<HestonSLVProcess> slvProcess
-            = ext::make_shared<HestonSLVProcess>(hestonProcess, leverageFunction_);
+            = ext::make_shared<HestonSLVProcess>(hestonProcess, leverageFunction_, mixingFactor_);
 
         std::vector<std::pair<Real, Real> > pairs(
                 calibrationPaths_, std::make_pair(spot->value(), v0));
@@ -169,7 +171,7 @@ namespace QuantLib {
 
             Size s = 0u, e = 0u;
             for (Size i=0; i < nBins_; ++i) {
-                const Size inc = k + (i < m);
+                const Size inc = k + static_cast<unsigned long>(i < m);
                 e = s + inc;
 
                 Real sum=0.0;
