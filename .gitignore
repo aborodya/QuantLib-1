@@ -45,7 +45,6 @@ test-suite/*.trs
 Makefile
 Makefile.in
 unity.cpp
-unity_*.cpp
 testCaseCollection.xml
 .deps
 .libs
@@ -113,7 +112,5 @@ cmake-build-debug
 nbproject
 .cproject
 
-# User customizations
-.dir-locals.el
-Build.props
-Directory.Build.props
+
+.project
