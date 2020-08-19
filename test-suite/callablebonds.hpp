@@ -1,7 +1,7 @@
 /* -*- mode: c++; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- */
 
 /*
- Copyright (C) 2004 StatPro Italia srl
+ Copyright (C) 2018 StatPro Italia srl
 
  This file is part of QuantLib, a free-software/open-source library
  for financial quantitative analysts and developers - http://quantlib.org/
@@ -17,31 +17,18 @@
  FOR A PARTICULAR PURPOSE.  See the license for more details.
 */
 
-#ifndef quantlib_test_bonds_hpp
-#define quantlib_test_bonds_hpp
+#ifndef quantlib_test_callable_bonds_hpp
+#define quantlib_test_callable_bonds_hpp
 
 #include <boost/test/unit_test.hpp>
 
-/* remember to document new and/or updated tests in the Doxygen
-   comment block of the corresponding class */
-
-class BondTest {
+class CallableBondTest {
   public:
-    static void testYield();
-    static void testAtmRate();
-    static void testZspread();
-    static void testTheoretical();
+    static void testConsistency();
+    static void testInterplay();
+    static void testObservability();
+    static void testDegenerate();
     static void testCached();
-    static void testCachedZero();
-    static void testCachedFixed();
-    static void testCachedFloating();
-    static void testBrazilianCached();
-    static void testFixedBondWithGivenDates();
-    static void testExCouponGilt();
-    static void testExCouponAustralianBond();
-    static void testBondFromScheduleWithDateVector();
-    static void testFixedRateBondWithArbitrarySchedule();
-    static void testThirty360BondWithSettlementOn31st();
     static boost::unit_test_framework::test_suite* suite();
 };
 
