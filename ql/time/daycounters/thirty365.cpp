@@ -1,8 +1,7 @@
 /* -*- mode: c++; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- */
 
 /*
- Copyright (C) 2003 RiskMap srl
- Copyright (C) 2020 Marcin Rybacki
+ Copyright (C) 2015 StatPro Italia srl
 
  This file is part of QuantLib, a free-software/open-source library
  for financial quantitative analysts and developers - http://quantlib.org/
@@ -18,28 +17,20 @@
  FOR A PARTICULAR PURPOSE.  See the license for more details.
 */
 
-#ifndef quantlib_test_swaption_hpp
-#define quantlib_test_swaption_hpp
+#include <ql/time/daycounters/thirty365.hpp>
 
-#include <boost/test/unit_test.hpp>
+namespace QuantLib {
 
-/* remember to document new and/or updated tests in the Doxygen
-   comment block of the corresponding class */
+    Date::serial_type Thirty365::Impl::dayCount(const Date& d1,
+                                                const Date& d2) const {
+        Day dd1 = d1.dayOfMonth(), dd2 = d2.dayOfMonth();
+        Integer mm1 = d1.month(), mm2 = d2.month();
+        Year yy1 = d1.year(), yy2 = d2.year();
 
-class SwaptionTest {
-  public:
-    static void testStrikeDependency();
-    static void testSpreadDependency();
-    static void testSpreadTreatment();
-    static void testCachedValue();
-    static void testCashSettledSwaptions();
-    static void testImpliedVolatility();
-    static void testVega();
-    static void testSwaptionDeltaInBlackModel();
-    static void testSwaptionDeltaInBachelierModel();
+        return 360*(yy2-yy1) + 30*(mm2-mm1) + (dd2-dd1);
+    }
 
-    static boost::unit_test_framework::test_suite* suite();
-};
+    Thirty365::Thirty365()
+    : DayCounter(ext::shared_ptr<DayCounter::Impl>(new Thirty365::Impl)) {}
 
-
-#endif
+}
