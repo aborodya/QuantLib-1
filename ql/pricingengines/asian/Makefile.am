@@ -9,9 +9,11 @@ this_include_HEADERS = \
 	analytic_discr_geom_av_strike.hpp \
 	fdblackscholesasianengine.hpp \
 	mc_discr_arith_av_price.hpp \
+	mc_discr_arith_av_price_heston.hpp \
 	mc_discr_arith_av_strike.hpp \
 	mc_discr_geom_av_price.hpp \
-	mcdiscreteasianengine.hpp
+	mcdiscreteasianengine.hpp \
+	mcdiscreteasianenginebase.hpp
 
 cpp_files = \
 	analytic_cont_geom_av_price.cpp \
@@ -19,6 +21,7 @@ cpp_files = \
 	analytic_discr_geom_av_strike.cpp \
 	fdblackscholesasianengine.cpp \
 	mc_discr_arith_av_price.cpp \
+	mc_discr_arith_av_price_heston.cpp \
 	mc_discr_arith_av_strike.cpp \
 	mc_discr_geom_av_price.cpp
 
