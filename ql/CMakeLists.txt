@@ -47,6 +47,8 @@ set(QuantLib_SRC
     experimental/amortizingbonds/amortizingcmsratebond.cpp
     experimental/amortizingbonds/amortizingfixedratebond.cpp
     experimental/amortizingbonds/amortizingfloatingratebond.cpp
+    experimental/asian/analytic_cont_geom_av_price_heston.cpp
+    experimental/asian/analytic_discr_geom_av_price_heston.cpp
     experimental/averageois/arithmeticaverageois.cpp
     experimental/averageois/arithmeticoisratehelper.cpp
     experimental/averageois/averageoiscouponpricer.cpp
@@ -183,6 +185,7 @@ set(QuantLib_SRC
     experimental/finitedifferences/fdsimpleklugeextouvppengine.cpp
     experimental/finitedifferences/glued1dmesher.cpp
     experimental/finitedifferences/vanillavppoption.cpp
+    experimental/forward/analytichestonforwardeuropeanengine.cpp
     experimental/futures/overnightindexfuture.cpp
     experimental/futures/overnightindexfutureratehelper.cpp
     experimental/fx/blackdeltacalculator.cpp
@@ -654,6 +657,7 @@ set(QuantLib_SRC
     pricingengines/asian/mc_discr_arith_av_price_heston.cpp
     pricingengines/asian/mc_discr_arith_av_strike.cpp
     pricingengines/asian/mc_discr_geom_av_price.cpp
+    pricingengines/asian/mc_discr_geom_av_price_heston.cpp
     pricingengines/barrier/analyticbarrierengine.cpp
     pricingengines/barrier/analyticbinarybarrierengine.cpp
     pricingengines/barrier/discretizedbarrieroption.cpp
@@ -969,6 +973,8 @@ set(QuantLib_HDR
     experimental/amortizingbonds/amortizingcmsratebond.hpp
     experimental/amortizingbonds/amortizingfixedratebond.hpp
     experimental/amortizingbonds/amortizingfloatingratebond.hpp
+    experimental/asian/analytic_cont_geom_av_price_heston.hpp
+    experimental/asian/analytic_discr_geom_av_price_heston.hpp
     experimental/averageois/all.hpp
     experimental/averageois/arithmeticaverageois.hpp
     experimental/averageois/arithmeticoisratehelper.hpp
@@ -1149,6 +1155,7 @@ set(QuantLib_HDR
     experimental/finitedifferences/glued1dmesher.hpp
     experimental/finitedifferences/modtriplebandlinearop.hpp
     experimental/finitedifferences/vanillavppoption.hpp
+    experimental/forward/analytichestonforwardeuropeanengine.hpp
     experimental/futures/all.hpp
     experimental/futures/overnightindexfuture.hpp
     experimental/futures/overnightindexfutureratehelper.hpp
@@ -1901,6 +1908,7 @@ set(QuantLib_HDR
     pricingengines/asian/mc_discr_arith_av_price_heston.hpp
     pricingengines/asian/mc_discr_arith_av_strike.hpp
     pricingengines/asian/mc_discr_geom_av_price.hpp
+    pricingengines/asian/mc_discr_geom_av_price_heston.hpp
     pricingengines/asian/mcdiscreteasianengine.hpp
     pricingengines/asian/mcdiscreteasianenginebase.hpp
     pricingengines/barrier/all.hpp

@@ -1,6 +1,8 @@
 /* -*- mode: c++; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- */
 
 /*
+ Copyright (C) 2020 Jack Gillett
+ 
  This file is part of QuantLib, a free-software/open-source library
  for financial quantitative analysts and developers - http://quantlib.org/
 
@@ -15,36 +17,45 @@
  FOR A PARTICULAR PURPOSE.  See the license for more details.
 */
 
-#include <ql/pricingengines/asian/mc_discr_arith_av_price_heston.hpp>
+#include <ql/pricingengines/asian/mc_discr_geom_av_price_heston.hpp>
 
 namespace QuantLib {
 
-    ArithmeticAPOHestonPathPricer::ArithmeticAPOHestonPathPricer(
+    GeometricAPOHestonPathPricer::GeometricAPOHestonPathPricer(
         Option::Type type,
         Real strike,
         DiscountFactor discount,
         const std::vector<Size>& fixingIndices,
-        Real runningSum,
+        Real runningProduct,
         Size pastFixings)
     : payoff_(type, strike), discount_(discount), fixingIndices_(fixingIndices),
-      runningSum_(runningSum), pastFixings_(pastFixings) {
+      runningProduct_(runningProduct), pastFixings_(pastFixings) {
         QL_REQUIRE(strike>=0.0,
             "strike less than zero not allowed");
     }
 
-    Real ArithmeticAPOHestonPathPricer::operator()(const MultiPath& multiPath) const  {
+    Real GeometricAPOHestonPathPricer::operator()(const MultiPath& multiPath) const  {
         const Path& path = multiPath[0];
         const Size n = multiPath.pathSize();
         QL_REQUIRE(n>0, "the path cannot be empty");
 
-        Real sum = runningSum_;
+        Real averagePrice = 1.0;
+        Real product = runningProduct_;
         Size fixings = pastFixings_ + fixingIndices_.size();
 
+        // care must be taken not to overflow product
+        Real maxValue = QL_MAX_REAL;
         for (Size i=0; i<fixingIndices_.size(); i++) {
-            sum += path[fixingIndices_[i]];
+            Real price = path[fixingIndices_[i]];
+            if (product < maxValue/price) {
+                product *= price;
+            } else {
+                averagePrice *= std::pow(product, 1.0/fixings);
+                product = price;
+            }
         }
 
-        Real averagePrice = sum/fixings;
+        averagePrice *= std::pow(product, 1.0/fixings);
         return discount_ * payoff_(averagePrice);
     }
 

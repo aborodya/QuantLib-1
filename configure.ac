@@ -473,6 +473,7 @@ AC_CONFIG_FILES([
     ql/currencies/Makefile
     ql/experimental/Makefile
     ql/experimental/amortizingbonds/Makefile
+    ql/experimental/asian/Makefile
     ql/experimental/averageois/Makefile
     ql/experimental/barrieroption/Makefile
     ql/experimental/basismodels/Makefile
@@ -484,6 +485,7 @@ AC_CONFIG_FILES([
     ql/experimental/credit/Makefile
     ql/experimental/exoticoptions/Makefile
     ql/experimental/finitedifferences/Makefile
+    ql/experimental/forward/Makefile
     ql/experimental/futures/Makefile
     ql/experimental/fx/Makefile
     ql/experimental/inflation/Makefile
