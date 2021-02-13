@@ -36,21 +36,16 @@
 
 namespace QuantLib {
 
-    CumulativeBehrensFisher::CumulativeBehrensFisher(
-        const std::vector<Integer>& degreesFreedom,
-        const std::vector<Real>& factors
-        )
-    : degreesFreedom_(degreesFreedom), factors_(factors),
-      polyConvolved_(std::vector<Real>(1, 1.)), // value to start convolution
-      a_(0.)
+    CumulativeBehrensFisher::CumulativeBehrensFisher(const std::vector<Integer>& degreesFreedom,
+                                                     const std::vector<Real>& factors)
+    : degreesFreedom_(degreesFreedom), factors_(factors), polyConvolved_(std::vector<Real>(1, 1.))
+
     {
         QL_REQUIRE(degreesFreedom.size() == factors.size(),
             "Incompatible sizes in convolution.");
-        for(Size i=0; i<degreesFreedom.size(); i++) {
-            QL_REQUIRE(degreesFreedom[i]%2 != 0,
-                "Even degree of freedom not allowed");
-            QL_REQUIRE(degreesFreedom[i] >= 0,
-                "Negative degree of freedom not allowed");
+        for (int i : degreesFreedom) {
+            QL_REQUIRE(i % 2 != 0, "Even degree of freedom not allowed");
+            QL_REQUIRE(i >= 0, "Negative degree of freedom not allowed");
         }
         for(Size i=0; i<degreesFreedom_.size(); i++)
             polynCharFnc_.push_back(polynCharactT((degreesFreedom[i]-1)/2));
@@ -64,13 +59,12 @@ namespace QuantLib {
             }
         }
         //convolution, here it is a product of polynomials and exponentials
-        for(Size i=0; i<polynCharFnc_.size(); i++)
-            polyConvolved_ =
-                convolveVectorPolynomials(polyConvolved_, polynCharFnc_[i]);
-          // trim possible zeros that might have arised:
-          std::vector<Real>::reverse_iterator it = polyConvolved_.rbegin();
-          while(it != polyConvolved_.rend()) {
-              if(*it == 0.) {
+        for (auto& i : polynCharFnc_)
+            polyConvolved_ = convolveVectorPolynomials(polyConvolved_, i);
+        // trim possible zeros that might have arised:
+        auto it = polyConvolved_.rbegin();
+        while (it != polyConvolved_.rend()) {
+            if (*it == 0.) {
                 polyConvolved_.pop_back();
                 it = polyConvolved_.rbegin();
               }else{

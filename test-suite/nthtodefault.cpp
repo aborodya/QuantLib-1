@@ -146,8 +146,8 @@ void NthToDefaultTest::testGauss() {
 
     vector<Handle<DefaultProbabilityTermStructure> > probabilities;
     Period maxTerm (10, Years);
-    for (Size i = 0; i < lambda.size(); i++) {
-        Handle<Quote> h(ext::shared_ptr<Quote>(new SimpleQuote(lambda[i])));
+    for (double i : lambda) {
+        Handle<Quote> h(ext::shared_ptr<Quote>(new SimpleQuote(i)));
         ext::shared_ptr<DefaultProbabilityTermStructure> ptr (
                                          new FlatHazardRate(asofDate, h, dc));
         probabilities.push_back(Handle<DefaultProbabilityTermStructure>(ptr));
@@ -292,8 +292,8 @@ void NthToDefaultTest::testStudent() {
 
     vector<Handle<DefaultProbabilityTermStructure> > probabilities;
     Period maxTerm (10, Years);
-    for (Size i = 0; i < lambda.size(); i++) {
-        Handle<Quote> h(ext::shared_ptr<Quote>(new SimpleQuote(lambda[i])));
+    for (double i : lambda) {
+        Handle<Quote> h(ext::shared_ptr<Quote>(new SimpleQuote(i)));
         ext::shared_ptr<DefaultProbabilityTermStructure> ptr (
                                          new FlatHazardRate(asofDate, h, dc));
         probabilities.push_back(Handle<DefaultProbabilityTermStructure>(ptr));
@@ -389,8 +389,8 @@ void NthToDefaultTest::testStudent() {
 }
 
 test_suite* NthToDefaultTest::suite(SpeedLevel speed) {
-    test_suite* suite = BOOST_TEST_SUITE("Nth-to-default tests");
-    #ifndef QL_PATCH_SOLARIS
+    auto* suite = BOOST_TEST_SUITE("Nth-to-default tests");
+#ifndef QL_PATCH_SOLARIS
     if (speed == Slow) {
         suite->add(QUANTLIB_TEST_CASE(&NthToDefaultTest::testGauss));
         suite->add(QUANTLIB_TEST_CASE(&NthToDefaultTest::testStudent));

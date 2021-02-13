@@ -85,6 +85,7 @@
 #endif
 
 #include <numeric>
+#include <utility>
 
 using namespace QuantLib;
 using namespace boost::unit_test_framework;
@@ -93,18 +94,15 @@ namespace {
 
     class FdmHestonExpressCondition : public StepCondition<Array> {
       public:
-        FdmHestonExpressCondition(
-            const std::vector<Real>& redemptions,
-            const std::vector<Real>& triggerLevels,
-            const std::vector<Time>& exerciseTimes,
-            const ext::shared_ptr<FdmMesher> & mesher)
-        : redemptions_(redemptions), triggerLevels_(triggerLevels),
-          exerciseTimes_(exerciseTimes), mesher_(mesher) {
-        }
+        FdmHestonExpressCondition(std::vector<Real> redemptions,
+                                  std::vector<Real> triggerLevels,
+                                  std::vector<Time> exerciseTimes,
+                                  ext::shared_ptr<FdmMesher> mesher)
+        : redemptions_(std::move(redemptions)), triggerLevels_(std::move(triggerLevels)),
+          exerciseTimes_(std::move(exerciseTimes)), mesher_(std::move(mesher)) {}
 
         void applyTo(Array& a, Time t) const override {
-            std::vector<Time>::const_iterator iter
-                = std::find(exerciseTimes_.begin(), exerciseTimes_.end(), t);
+            auto iter = std::find(exerciseTimes_.begin(), exerciseTimes_.end(), t);
 
             if (iter != exerciseTimes_.end()) {
                 Size index = std::distance(exerciseTimes_.begin(), iter);
@@ -1302,8 +1300,8 @@ void FdmLinearOpTest::testBiCGstab() {
 
     Array b(n*m);
     MersenneTwisterUniformRng rng(1234);
-    for (Size i=0; i < b.size(); ++i) {
-        b[i] = rng.next().value;
+    for (double& i : b) {
+        i = rng.next().value;
     }
 
     const Real tol = 1e-10;
@@ -1342,8 +1340,8 @@ void FdmLinearOpTest::testGMRES() {
     
     Array b(n*m);
     MersenneTwisterUniformRng rng(1234);
-    for (Size i=0; i < b.size(); ++i) {
-        b[i] = rng.next().value;
+    for (double& i : b) {
+        i = rng.next().value;
     }
 
     const Real tol = 1e-10;
@@ -1489,8 +1487,8 @@ void FdmLinearOpTest::testSpareMatrixReference() {
     std::vector<SparseMatrix> v(nMatrices, SparseMatrix(rows, columns));
     std::vector<SparseMatrixReference> refs;
 
-    for (Size i=0; i < v.size(); ++i) {
-        SparseMatrixReference m(v[i]);
+    for (auto& i : v) {
+        SparseMatrixReference m(i);
         for (Size j=0; j < nElements; ++j) {
             const Size row    = Size(rng.next().value*rows);
             const Size column = Size(rng.next().value*columns);
@@ -1753,7 +1751,7 @@ void FdmLinearOpTest::testLowVolatilityHighDiscreteDividendBlackScholesMesher() 
 }
 
 test_suite* FdmLinearOpTest::suite() {
-    test_suite* suite = BOOST_TEST_SUITE("linear operator tests");
+    auto* suite = BOOST_TEST_SUITE("linear operator tests");
 
     suite->add(
         QUANTLIB_TEST_CASE(&FdmLinearOpTest::testFdmLinearOpLayout));

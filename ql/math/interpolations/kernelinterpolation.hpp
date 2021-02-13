@@ -23,6 +23,7 @@
 
 #include <ql/math/interpolation.hpp>
 #include <ql/math/matrixutilities/qrdecomposition.hpp>
+#include <utility>
 
 /*! \file kernelinterpolation.hpp
     \brief Kernel interpolation
@@ -36,14 +37,14 @@ namespace QuantLib {
         class KernelInterpolationImpl
             : public Interpolation::templateImpl<I1,I2> {
           public:
-            KernelInterpolationImpl(const I1& xBegin, const I1& xEnd,
+            KernelInterpolationImpl(const I1& xBegin,
+                                    const I1& xEnd,
                                     const I2& yBegin,
-                                    const Kernel& kernel,
+                                    Kernel kernel,
                                     const Real epsilon)
-            : Interpolation::templateImpl<I1,I2>(xBegin, xEnd, yBegin),
-              xSize_(Size(xEnd-xBegin)), invPrec_(epsilon),
-              M_(xSize_,xSize_), alphaVec_(xSize_), yVec_(xSize_),
-              kernel_(kernel) {}
+            : Interpolation::templateImpl<I1, I2>(xBegin, xEnd, yBegin),
+              xSize_(Size(xEnd - xBegin)), invPrec_(epsilon), M_(xSize_, xSize_), alphaVec_(xSize_),
+              yVec_(xSize_), kernel_(std::move(kernel)) {}
 
             void update() override { updateAlphaVec(); }
 
@@ -115,9 +116,8 @@ namespace QuantLib {
 
                 Array diffVec=Abs(M_*alphaVec_ - yVec_);
 
-                for (Size i=0; i<diffVec.size(); ++i) {
-                    QL_REQUIRE(diffVec[i] < invPrec_,
-                               "Inversion failed in 1d kernel interpolation");
+                for (double i : diffVec) {
+                    QL_REQUIRE(i < invPrec_, "Inversion failed in 1d kernel interpolation");
                 }
             }
 

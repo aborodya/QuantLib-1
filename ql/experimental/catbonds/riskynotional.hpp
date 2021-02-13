@@ -24,17 +24,18 @@
 #ifndef quantlib_risky_notional_hpp
 #define quantlib_risky_notional_hpp
 
-#include <ql/time/date.hpp>
 #include <ql/errors.hpp>
 #include <ql/shared_ptr.hpp>
-#include <vector>
+#include <ql/time/date.hpp>
 #include <algorithm>
+#include <utility>
+#include <vector>
 
 namespace QuantLib {
 
     class EventPaymentOffset {
       public:
-        virtual ~EventPaymentOffset() {}
+        virtual ~EventPaymentOffset() = default;
         virtual Date paymentDate(const Date& eventDate) = 0;
     };
 
@@ -61,9 +62,9 @@ namespace QuantLib {
 
     class NotionalRisk {
     public:
-      explicit NotionalRisk(const ext::shared_ptr<EventPaymentOffset>& paymentOffset)
-      : paymentOffset_(paymentOffset) {}
-      virtual ~NotionalRisk() {}
+      explicit NotionalRisk(ext::shared_ptr<EventPaymentOffset> paymentOffset)
+      : paymentOffset_(std::move(paymentOffset)) {}
+      virtual ~NotionalRisk() = default;
 
       virtual void updatePath(const std::vector<std::pair<Date, Real> >& events,
                               NotionalPath& path) const = 0;
@@ -102,13 +103,12 @@ namespace QuantLib {
             path.reset();
             Real losses = 0;
             Real previousNotional = 1;
-            for(size_t i=0; i<events.size(); ++i)
-            {
-                losses+=events[i].second;
+            for (const auto& event : events) {
+                losses += event.second;
                 if(losses>attachement_ && previousNotional>0)
                 {
                     previousNotional = std::max(0.0, (exhaustion_-losses)/(exhaustion_-attachement_));
-                    path.addReduction(paymentOffset_->paymentDate(events[i].first), previousNotional);
+                    path.addReduction(paymentOffset_->paymentDate(event.first), previousNotional);
                 }
             }
         }

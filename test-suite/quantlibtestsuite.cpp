@@ -190,6 +190,7 @@
 #include "rounding.hpp"
 #include "sampledcurve.hpp"
 #include "schedule.hpp"
+#include "settings.hpp"
 #include "shortratemodels.hpp"
 #include "sofrfutures.hpp"
 #include "solvers.hpp"
@@ -366,7 +367,7 @@ test_suite* init_unit_test_suite(int, char* []) {
     BOOST_TEST_MESSAGE(rule);
     BOOST_TEST_MESSAGE(header.str());
     BOOST_TEST_MESSAGE(rule);
-    test_suite* test = BOOST_TEST_SUITE("QuantLib test suite");
+    auto* test = BOOST_TEST_SUITE("QuantLib test suite");
 
     test->add(QUANTLIB_TEST_CASE(startTimer));
 
@@ -466,6 +467,7 @@ test_suite* init_unit_test_suite(int, char* []) {
     test->add(RoundingTest::suite());
     test->add(SampledCurveTest::suite());
     test->add(ScheduleTest::suite());
+    test->add(SettingsTest::suite());
     test->add(ShortRateModelTest::suite(speed)); // fails with QL_USE_INDEXED_COUPON
     test->add(Solver1DTest::suite());
     test->add(StatisticsTest::suite());

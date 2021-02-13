@@ -183,9 +183,9 @@ void LiborMarketModelProcessTest::testLambdaBootstrapping() {
     std::vector<Time> tmp = process->fixingTimes();
     TimeGrid grid(tmp.begin(), tmp.end(), 14);
 
-    for (Size t=0; t<grid.size(); ++t) {
-        Matrix diff = (param->integratedCovariance(grid[t])
-        - param->LfmCovarianceParameterization::integratedCovariance(grid[t]));
+    for (double t : grid) {
+        Matrix diff = (param->integratedCovariance(t) -
+                       param->LfmCovarianceParameterization::integratedCovariance(t));
 
         for (Size i=0; i<diff.rows(); ++i) {
             for (Size j=0; j<diff.columns(); ++j) {
@@ -337,7 +337,7 @@ void LiborMarketModelProcessTest::testMonteCarloCapletPricing() {
 }
 
 test_suite* LiborMarketModelProcessTest::suite(SpeedLevel speed) {
-    test_suite* suite = BOOST_TEST_SUITE("Libor market model process tests");
+    auto* suite = BOOST_TEST_SUITE("Libor market model process tests");
 
     suite->add(QUANTLIB_TEST_CASE(
          &LiborMarketModelProcessTest::testInitialisation));

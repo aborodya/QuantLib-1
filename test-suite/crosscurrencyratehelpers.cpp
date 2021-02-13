@@ -80,14 +80,15 @@ namespace crosscurrencyratehelpers_test {
         }
 
         std::vector<ext::shared_ptr<RateHelper> >
-        buildConstantNotionalXccyRateHelpers(std::vector<XccyTestDatum> xccyData,
+        buildConstantNotionalXccyRateHelpers(const std::vector<XccyTestDatum>& xccyData,
                                              const Handle<YieldTermStructure>& collateralHandle,
                                              bool isFxBaseCurrencyCollateralCurrency,
                                              bool isBasisOnFxBaseCurrencyLeg) const {
             std::vector<ext::shared_ptr<RateHelper> > instruments;
-            for (Size i = 0; i < xccyData.size(); i++) {
+            instruments.reserve(xccyData.size());
+            for (const auto& i : xccyData) {
                 instruments.push_back(constantNotionalXccyRateHelper(
-                    xccyData[i], collateralHandle, isFxBaseCurrencyCollateralCurrency,
+                    i, collateralHandle, isFxBaseCurrencyCollateralCurrency,
                     isBasisOnFxBaseCurrencyLeg));
             }
 
@@ -266,7 +267,7 @@ void CrossCurrencyRateHelpersTest::testBasisSwapsWithCollateralAndBasisInQuoteCc
 }
 
 test_suite* CrossCurrencyRateHelpersTest::suite() {
-    test_suite* suite = BOOST_TEST_SUITE("Cross currency rate helpers tests");
+    auto* suite = BOOST_TEST_SUITE("Cross currency rate helpers tests");
 
     suite->add(QUANTLIB_TEST_CASE(
         &CrossCurrencyRateHelpersTest::testBasisSwapsWithCollateralInQuoteAndBasisInBaseCcy));

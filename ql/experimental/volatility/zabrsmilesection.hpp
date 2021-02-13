@@ -24,11 +24,12 @@
 #ifndef quantlib_zabr_smile_section_hpp
 #define quantlib_zabr_smile_section_hpp
 
+#include <ql/experimental/volatility/zabr.hpp>
 #include <ql/pricingengines/blackformula.hpp>
 #include <ql/termstructures/volatility/smilesection.hpp>
-#include <ql/time/daycounters/actual365fixed.hpp>
-#include <ql/experimental/volatility/zabr.hpp>
 #include <ql/termstructures/volatility/smilesectionutils.hpp>
+#include <ql/time/daycounters/actual365fixed.hpp>
+#include <utility>
 #include <vector>
 
 using std::exp;
@@ -46,12 +47,12 @@ template <typename Evaluation> class ZabrSmileSection : public SmileSection {
   public:
     ZabrSmileSection(Time timeToExpiry,
                      Rate forward,
-                     const std::vector<Real>& zabrParameters,
+                     std::vector<Real> zabrParameters,
                      const std::vector<Real>& moneyness = std::vector<Real>(),
                      Size fdRefinement = 5);
     ZabrSmileSection(const Date& d,
                      Rate forward,
-                     const std::vector<Real>& zabrParameters,
+                     std::vector<Real> zabrParameters,
                      const DayCounter& dc = Actual365Fixed(),
                      const std::vector<Real>& moneyness = std::vector<Real>(),
                      Size fdRefinement = 5);
@@ -112,21 +113,25 @@ template <typename Evaluation> class ZabrSmileSection : public SmileSection {
 };
 
 template <typename Evaluation>
-ZabrSmileSection<Evaluation>::ZabrSmileSection(
-    Time timeToExpiry, Rate forward, const std::vector<Real> &zabrParams,
-    const std::vector<Real> &moneyness, const Size fdRefinement)
-    : SmileSection(timeToExpiry, DayCounter()), forward_(forward),
-      params_(zabrParams), fdRefinement_(fdRefinement) {
+ZabrSmileSection<Evaluation>::ZabrSmileSection(Time timeToExpiry,
+                                               Rate forward,
+                                               std::vector<Real> zabrParams,
+                                               const std::vector<Real>& moneyness,
+                                               const Size fdRefinement)
+: SmileSection(timeToExpiry, DayCounter()), forward_(forward), params_(std::move(zabrParams)),
+  fdRefinement_(fdRefinement) {
     init(moneyness);
 }
 
 template <typename Evaluation>
-ZabrSmileSection<Evaluation>::ZabrSmileSection(
-    const Date &d, Rate forward, const std::vector<Real> &zabrParams,
-    const DayCounter &dc, const std::vector<Real> &moneyness,
-    const Size fdRefinement)
-    : SmileSection(d, dc, Date()), forward_(forward), params_(zabrParams),
-      fdRefinement_(fdRefinement) {
+ZabrSmileSection<Evaluation>::ZabrSmileSection(const Date& d,
+                                               Rate forward,
+                                               std::vector<Real> zabrParams,
+                                               const DayCounter& dc,
+                                               const std::vector<Real>& moneyness,
+                                               const Size fdRefinement)
+: SmileSection(d, dc, Date()), forward_(forward), params_(std::move(zabrParams)),
+  fdRefinement_(fdRefinement) {
     init(moneyness);
 }
 
@@ -171,8 +176,8 @@ void ZabrSmileSection<Evaluation>::init(const std::vector<Real> &moneyness,
     strikes_.clear(); // should not be necessary, anyway
     Real lastF = 0.0;
     bool firstStrike = true;
-    for (Size i = 0; i < tmp.size(); i++) {
-        Real f = tmp[i] * forward_;
+    for (double i : tmp) {
+        Real f = i * forward_;
         if (f > 0.0) {
             if (!firstStrike) {
                 for (Size j = 1; j <= fdRefinement_; ++j) {

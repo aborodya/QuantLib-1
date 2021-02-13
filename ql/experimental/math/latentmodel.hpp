@@ -86,7 +86,7 @@ namespace QuantLib {
             const std::vector<Real>& arg)>& f) const {
             QL_FAIL("No vector integration provided");
         }
-        virtual ~LMIntegration() {}
+        virtual ~LMIntegration() = default;
     };
 
     //CRTP-ish for joining the integrations, class above to have the factory
@@ -95,8 +95,8 @@ namespace QuantLib {
         public I_T, public LMIntegration {// diamond on 'integrate'
      // this class template always to be fully specialized:
      private:
-         IntegrationBase() {}
-         ~IntegrationBase() override {}
+       IntegrationBase() = default;
+       ~IntegrationBase() override = default;
     };
     //@}
     
@@ -130,7 +130,7 @@ namespace QuantLib {
             const override {
             return GaussianQuadMultidimIntegrator::integrate<Disposable<std::vector<Real> > >(f);
         }
-        ~IntegrationBase() override {}
+        ~IntegrationBase() override = default;
     };
 
     #endif
@@ -147,7 +147,7 @@ namespace QuantLib {
             return MultidimIntegral::operator()(f, a_, b_);
         }
         // disposable vector version here....
-        ~IntegrationBase() override {}
+        ~IntegrationBase() override = default;
         const std::vector<Real> a_, b_;
     };
 
@@ -497,7 +497,7 @@ namespace QuantLib {
                 }
             }
         private:
-            IntegrationFactory() {}
+          IntegrationFactory() = default;
         };
         //@}
 
@@ -685,12 +685,10 @@ namespace QuantLib {
     : nFactors_(1),
       nVariables_(factorWeights.size())
     {
-        for(Size iName=0; iName < factorWeights.size(); iName++)
-            factorWeights_.push_back(std::vector<Real>(1, 
-                factorWeights[iName]));
-        for(Size iName=0; iName < factorWeights.size(); iName++)
-            idiosyncFctrs_.push_back(std::sqrt(1. - 
-                factorWeights[iName]*factorWeights[iName]));
+        for (double factorWeight : factorWeights)
+            factorWeights_.push_back(std::vector<Real>(1, factorWeight));
+        for (double factorWeight : factorWeights)
+            idiosyncFctrs_.push_back(std::sqrt(1. - factorWeight * factorWeight));
         //convert row to column vector....
         copula_ = copulaType(factorWeights_, ini);
     }
@@ -797,9 +795,8 @@ namespace QuantLib {
           urng_(seed) {
             // 1 == urng.dimension() is enforced by the sample type
             const std::vector<Real>& varF = copula.varianceFactors();
-            for(Size i=0; i<varF.size(); i++)// ...use back inserter lambda
-                trng_.push_back(
-                    PolarStudentTRng<urng_type>(2./(1.-varF[i]*varF[i]), urng_));
+            for (double i : varF) // ...use back inserter lambda
+                trng_.push_back(PolarStudentTRng<urng_type>(2. / (1. - i * i), urng_));
         }
         const sample_type& nextSequence() const {
             Size i=0;

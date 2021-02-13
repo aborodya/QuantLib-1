@@ -20,17 +20,18 @@
  FOR A PARTICULAR PURPOSE.  See the license for more details.
 */
 
-#include <ql/cashflows/couponpricer.hpp>
 #include <ql/cashflows/capflooredcoupon.hpp>
-#include <ql/cashflows/digitalcoupon.hpp>
+#include <ql/cashflows/couponpricer.hpp>
 #include <ql/cashflows/digitalcmscoupon.hpp>
+#include <ql/cashflows/digitalcoupon.hpp>
 #include <ql/cashflows/digitaliborcoupon.hpp>
 #include <ql/cashflows/rangeaccrual.hpp>
-#include <ql/experimental/coupons/subperiodcoupons.hpp> /* internal */
-#include <ql/experimental/coupons/cmsspreadcoupon.hpp>  /* internal */
-#include <ql/experimental/coupons/digitalcmsspreadcoupon.hpp>  /* internal */
+#include <ql/experimental/coupons/cmsspreadcoupon.hpp>        /* internal */
+#include <ql/experimental/coupons/digitalcmsspreadcoupon.hpp> /* internal */
+#include <ql/experimental/coupons/subperiodcoupons.hpp>       /* internal */
 #include <ql/pricingengines/blackformula.hpp>
 #include <ql/termstructures/yieldtermstructure.hpp>
+#include <utility>
 
 namespace QuantLib {
 
@@ -48,7 +49,7 @@ namespace QuantLib {
         index_ = ext::dynamic_pointer_cast<IborIndex>(coupon.index());
         if (!index_) {
             // check if the coupon was right
-            const IborCoupon* c = dynamic_cast<const IborCoupon*>(&coupon);
+            const auto* c = dynamic_cast<const IborCoupon*>(&coupon);
             QL_REQUIRE(c, "IborCoupon required");
             // coupon was right, index is not
             QL_FAIL("IborIndex required");
@@ -188,9 +189,8 @@ namespace QuantLib {
           private:
             ext::shared_ptr<FloatingRateCouponPricer> pricer_;
           public:
-            explicit PricerSetter(
-                    const ext::shared_ptr<FloatingRateCouponPricer>& pricer)
-            : pricer_(pricer) {}
+            explicit PricerSetter(ext::shared_ptr<FloatingRateCouponPricer> pricer)
+            : pricer_(std::move(pricer)) {}
 
             void visit(CashFlow& c) override;
             void visit(Coupon& c) override;
@@ -225,13 +225,13 @@ namespace QuantLib {
             // we might end up here because a CappedFlooredCoupon
             // was directly constructed; we should then check
             // the underlying for consistency with the pricer
-            if (ext::dynamic_pointer_cast<IborCoupon>(c.underlying()) != 0) {
+            if (ext::dynamic_pointer_cast<IborCoupon>(c.underlying()) != nullptr) {
                 QL_REQUIRE(ext::dynamic_pointer_cast<IborCouponPricer>(pricer_),
                            "pricer not compatible with Ibor Coupon");
-            } else if (ext::dynamic_pointer_cast<CmsCoupon>(c.underlying()) != 0) {
+            } else if (ext::dynamic_pointer_cast<CmsCoupon>(c.underlying()) != nullptr) {
                 QL_REQUIRE(ext::dynamic_pointer_cast<CmsCouponPricer>(pricer_),
                            "pricer not compatible with CMS Coupon");
-            } else if (ext::dynamic_pointer_cast<CmsSpreadCoupon>(c.underlying()) != 0) {
+            } else if (ext::dynamic_pointer_cast<CmsSpreadCoupon>(c.underlying()) != nullptr) {
                 QL_REQUIRE(ext::dynamic_pointer_cast<CmsSpreadCouponPricer>(pricer_),
                            "pricer not compatible with CMS spread Coupon");
             }
@@ -329,14 +329,15 @@ namespace QuantLib {
         void setCouponPricersFirstMatching(const Leg& leg,
                                            const std::vector<ext::shared_ptr<FloatingRateCouponPricer> >& p) {
             std::vector<PricerSetter> setter;
-            for (Size i = 0; i < p.size(); ++i) {
-                setter.push_back(PricerSetter(p[i]));
+            setter.reserve(p.size());
+            for (const auto& i : p) {
+                setter.push_back(PricerSetter(i));
             }
-            for (Size i = 0; i < leg.size(); ++i) {
+            for (const auto& i : leg) {
                 Size j = 0;
                 do {
                     try {
-                        leg[i]->accept(setter[j]);
+                        i->accept(setter[j]);
                         j = p.size();
                     } catch (...) {
                         ++j;
@@ -349,8 +350,8 @@ namespace QuantLib {
 
     void setCouponPricer(const Leg& leg, const ext::shared_ptr<FloatingRateCouponPricer>& pricer) {
             PricerSetter setter(pricer);
-            for (Size i = 0; i < leg.size(); ++i) {
-                leg[i]->accept(setter);
+            for (const auto& i : leg) {
+                i->accept(setter);
             }
     }
 

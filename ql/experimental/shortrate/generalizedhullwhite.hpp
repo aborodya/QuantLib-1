@@ -25,10 +25,11 @@
 #ifndef quantlib_generalized_hull_white_hpp
 #define quantlib_generalized_hull_white_hpp
 
-#include <ql/models/shortrate/onefactormodel.hpp>
 #include <ql/experimental/shortrate/generalizedornsteinuhlenbeckprocess.hpp>
-#include <ql/processes/ornsteinuhlenbeckprocess.hpp>
 #include <ql/math/interpolation.hpp>
+#include <ql/models/shortrate/onefactormodel.hpp>
+#include <ql/processes/ornsteinuhlenbeckprocess.hpp>
+#include <utility>
 
 namespace QuantLib {
 
@@ -54,7 +55,7 @@ namespace QuantLib {
         void reset(const Interpolation &interp) {
             ext::shared_ptr<InterpolationParameter::Impl> impl =
                 ext::dynamic_pointer_cast<InterpolationParameter::Impl>(impl_);
-            if (impl != 0)
+            if (impl != nullptr)
                 impl->reset(interp);
         }
     };
@@ -188,10 +189,10 @@ namespace QuantLib {
 
             DayCounter dc = yieldtermStructure->dayCounter();
             Date ref = yieldtermStructure->referenceDate();
-            for (Size i=0;i<speedstructure.size();i++)
-                speedperiods_.push_back(dc.yearFraction(ref,speedstructure[i]));
-            for (Size i=0;i<volstructure.size();i++)
-                volperiods_.push_back(dc.yearFraction(ref,volstructure[i]));
+            for (auto i : speedstructure)
+                speedperiods_.push_back(dc.yearFraction(ref, i));
+            for (auto i : volstructure)
+                volperiods_.push_back(dc.yearFraction(ref, i));
 
             // interpolator x points to *periods_ vector, y points to
             // the internal Array in the parameter
@@ -235,24 +236,20 @@ namespace QuantLib {
     class GeneralizedHullWhite::Dynamics
         : public GeneralizedHullWhite::ShortRateDynamics {
       public:
-        Dynamics(const Parameter& fitting,
-                 const ext::function<Real (Time)>& alpha,
-                 const ext::function<Real (Time)>& sigma,
-                 const ext::function<Real(Real)>& f,
-                 const ext::function<Real(Real)>& fInverse)
+        Dynamics(Parameter fitting,
+                 const ext::function<Real(Time)>& alpha,
+                 const ext::function<Real(Time)>& sigma,
+                 ext::function<Real(Real)> f,
+                 ext::function<Real(Real)> fInverse)
         : ShortRateDynamics(ext::shared_ptr<StochasticProcess1D>(
-                      new GeneralizedOrnsteinUhlenbeckProcess(alpha, sigma))),
-          fitting_(fitting),
-          _f_(f), _fInverse_(fInverse) {}
+              new GeneralizedOrnsteinUhlenbeckProcess(alpha, sigma))),
+          fitting_(std::move(fitting)), _f_(std::move(f)), _fInverse_(std::move(fInverse)) {}
 
         //classical HW dynamics
-        Dynamics(const Parameter& fitting,
-                 Real a,
-                 Real sigma)
+        Dynamics(Parameter fitting, Real a, Real sigma)
         : GeneralizedHullWhite::ShortRateDynamics(
-              ext::shared_ptr<StochasticProcess1D>(
-                      new OrnsteinUhlenbeckProcess(a, sigma))),
-          fitting_(fitting), _f_(identity()), _fInverse_(identity()) {}
+              ext::shared_ptr<StochasticProcess1D>(new OrnsteinUhlenbeckProcess(a, sigma))),
+          fitting_(std::move(fitting)), _f_(identity()), _fInverse_(identity()) {}
 
         Real variable(Time t, Rate r) const override { return _f_(r) - fitting_(t); }
 
@@ -279,9 +276,8 @@ namespace QuantLib {
       private:
         class Impl : public Parameter::Impl {
           public:
-            Impl(const Handle<YieldTermStructure>& termStructure,
-                 Real a, Real sigma)
-            : termStructure_(termStructure), a_(a), sigma_(sigma) {}
+            Impl(Handle<YieldTermStructure> termStructure, Real a, Real sigma)
+            : termStructure_(std::move(termStructure)), a_(a), sigma_(sigma) {}
 
             Real value(const Array&, Time t) const override {
                 Rate forwardRate =

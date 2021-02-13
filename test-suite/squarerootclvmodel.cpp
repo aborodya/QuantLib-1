@@ -63,6 +63,7 @@
 #endif
 
 #include <set>
+#include <utility>
 
 using namespace QuantLib;
 using namespace boost::assign;
@@ -72,8 +73,8 @@ using namespace boost::unit_test_framework;
 namespace square_root_clv_model {
     class CLVModelPayoff : public PlainVanillaPayoff {
       public:
-        CLVModelPayoff(Option::Type type, Real strike, const ext::function<Real(Real)>& g)
-        : PlainVanillaPayoff(type, strike), g_(g) {}
+        CLVModelPayoff(Option::Type type, Real strike, ext::function<Real(Real)> g)
+        : PlainVanillaPayoff(type, strike), g_(std::move(g)) {}
 
         Real operator()(Real x) const override { return PlainVanillaPayoff::operator()(g_(x)); }
 
@@ -88,8 +89,8 @@ namespace square_root_clv_model {
         CLVModelPayoff payoff;
         chi_squared_type dist;
       public:
-        integrand(const CLVModelPayoff& payoff, const chi_squared_type& dist)
-        : payoff(payoff), dist(dist) {}
+        integrand(CLVModelPayoff payoff, const chi_squared_type& dist)
+        : payoff(std::move(payoff)), dist(dist) {}
         Real operator()(Real x) const {
             return payoff(x) * boost::math::pdf(dist, x);
         }
@@ -155,10 +156,8 @@ void SquareRootCLVModelTest::testSquareRootCLVVanillaPricing() {
     const chi_squared_type dist(df, ncp);
         
     const Real strikes[] = { 50, 75, 100, 125, 150, 200 };
-    for (Size i=0; i < LENGTH(strikes); ++i) {
-        const Real strike = strikes[i];
-        const Option::Type optionType =
-            (strike > fwd) ? Option::Call : Option::Put;
+    for (double strike : strikes) {
+        const Option::Type optionType = (strike > fwd) ? Option::Call : Option::Put;
 
         const Real expected = BlackCalculator(
             optionType, strike, fwd,
@@ -241,8 +240,8 @@ void SquareRootCLVModelTest::testSquareRootCLVMappingFunction() {
 
     const Real strikes[] = { 80, 100, 120 };
     const Size offsets[] = { 92, 182, 183, 184, 185, 186, 365 };
-    for (Size i=0; i < LENGTH(offsets); ++i) {
-        const Date m = todaysDate + Period(offsets[i], Days);
+    for (unsigned long offset : offsets) {
+        const Date m = todaysDate + Period(offset, Days);
         const Time t = dc.yearFraction(todaysDate, m);
 
         const Real df  = 4*theta*kappa/(sigma*sigma);
@@ -253,10 +252,8 @@ void SquareRootCLVModelTest::testSquareRootCLVMappingFunction() {
 
         const Real fwd = s0*qTS->discount(m)/rTS->discount(m);
 
-        for (Size j=0; j < LENGTH(strikes); ++j) {
-            const Real strike = strikes[j];
-            const Option::Type optionType =
-                (strike > fwd) ? Option::Call : Option::Put;
+        for (double strike : strikes) {
+            const Option::Type optionType = (strike > fwd) ? Option::Call : Option::Put;
 
             const Real expected = BlackCalculator(
                 optionType, strike, fwd,
@@ -291,19 +288,14 @@ void SquareRootCLVModelTest::testSquareRootCLVMappingFunction() {
 namespace square_root_clv_model {
     class SquareRootCLVCalibrationFunction : public CostFunction {
       public:
-        SquareRootCLVCalibrationFunction(
-            const Array& strikes,
-            const std::vector<Date>& resetDates,
-            const std::vector<Date>& maturityDates,
-            const ext::shared_ptr<GeneralizedBlackScholesProcess>& bsProcess,
-            const Array& refVols,
-            Size nScenarios = 10000)
-      : strikes_      (strikes),
-        resetDates_   (resetDates),
-        maturityDates_(maturityDates),
-        bsProcess_    (bsProcess),
-        refVols_      (refVols),
-        nScenarios_   (nScenarios) {
+        SquareRootCLVCalibrationFunction(Array strikes,
+                                         const std::vector<Date>& resetDates,
+                                         const std::vector<Date>& maturityDates,
+                                         ext::shared_ptr<GeneralizedBlackScholesProcess> bsProcess,
+                                         Array refVols,
+                                         Size nScenarios = 10000)
+        : strikes_(std::move(strikes)), resetDates_(resetDates), maturityDates_(maturityDates),
+          bsProcess_(std::move(bsProcess)), refVols_(std::move(refVols)), nScenarios_(nScenarios) {
             std::set<Date> c(resetDates.begin(), resetDates.end());
             c.insert(maturityDates.begin(), maturityDates.end());
             calibrationDates_.insert(
@@ -314,8 +306,8 @@ namespace square_root_clv_model {
             const Array diff = values(params);
 
             Real retVal = 0.0;
-            for (Size i=0; i < diff.size(); ++i)
-                retVal += diff[i]*diff[i];
+            for (double i : diff)
+                retVal += i * i;
 
             return retVal;
         }
@@ -566,9 +558,9 @@ void SquareRootCLVModelTest::testForwardSkew() {
 
     // forward skew of the Heston-SLV model
     std::vector<Time> mandatoryTimes;
-    for (Size i=0, n = calibrationDates.size(); i < n; ++i)
-        mandatoryTimes.push_back(
-            dc.yearFraction(todaysDate, calibrationDates[i]));
+    mandatoryTimes.reserve(calibrationDates.size());
+    for (auto& calibrationDate : calibrationDates)
+        mandatoryTimes.push_back(dc.yearFraction(todaysDate, calibrationDate));
 
     const Size tSteps = 200;
     const TimeGrid grid(mandatoryTimes.begin(), mandatoryTimes.end(), tSteps);
@@ -845,7 +837,7 @@ void SquareRootCLVModelTest::testForwardSkew() {
 
  
 test_suite* SquareRootCLVModelTest::experimental() {
-    test_suite* suite = BOOST_TEST_SUITE("SquareRootCLVModel tests");
+    auto* suite = BOOST_TEST_SUITE("SquareRootCLVModel tests");
 
     suite->add(QUANTLIB_TEST_CASE(
         &SquareRootCLVModelTest::testSquareRootCLVVanillaPricing));

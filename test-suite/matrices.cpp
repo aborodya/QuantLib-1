@@ -22,20 +22,20 @@
 
 #include "matrices.hpp"
 #include "utilities.hpp"
+#include <ql/experimental/math/moorepenroseinverse.hpp>
 #include <ql/math/initializers.hpp>
 #include <ql/math/matrix.hpp>
-#include <ql/math/matrixutilities/choleskydecomposition.hpp>
-#include <ql/math/matrixutilities/pseudosqrt.hpp>
-#include <ql/math/matrixutilities/svd.hpp>
-#include <ql/math/matrixutilities/gmres.hpp>
+#include <ql/math/matrixutilities/basisincompleteordered.hpp>
 #include <ql/math/matrixutilities/bicgstab.hpp>
+#include <ql/math/matrixutilities/choleskydecomposition.hpp>
+#include <ql/math/matrixutilities/gmres.hpp>
+#include <ql/math/matrixutilities/pseudosqrt.hpp>
+#include <ql/math/matrixutilities/qrdecomposition.hpp>
+#include <ql/math/matrixutilities/svd.hpp>
 #include <ql/math/matrixutilities/symmetricschurdecomposition.hpp>
 #include <ql/math/randomnumbers/mt19937uniformrng.hpp>
-#include <ql/math/matrixutilities/qrdecomposition.hpp>
-#include <ql/math/matrixutilities/basisincompleteordered.hpp>
-#include <ql/experimental/math/moorepenroseinverse.hpp>
-
 #include <boost/math/special_functions/fpclassify.hpp>
+#include <utility>
 
 using namespace QuantLib;
 using namespace boost::unit_test_framework;
@@ -118,9 +118,8 @@ void MatricesTest::testEigenvectors() {
 
     Matrix testMatrices[] = { M1, M2 };
 
-    for (Size k=0; k<LENGTH(testMatrices); k++) {
+    for (auto& M : testMatrices) {
 
-        Matrix& M = testMatrices[k];
         SymmetricSchurDecomposition dec(M);
         Array eigenValues = dec.eigenvalues();
         Matrix eigenVectors = dec.eigenvectors();
@@ -203,9 +202,8 @@ void MatricesTest::testSVD() {
     Real tol = 1.0e-12;
     Matrix testMatrices[] = { M1, M2, M3, M4 };
 
-    for (Size j = 0; j < LENGTH(testMatrices); j++) {
+    for (auto& A : testMatrices) {
         // m >= n required (rows >= columns)
-        Matrix& A = testMatrices[j];
         SVD svd(A);
         // U is m x n
         const Matrix& U = svd.U();
@@ -251,11 +249,9 @@ void MatricesTest::testQRDecomposition() {
     Matrix testMatrices[] = { M1, M2, I,
                               M3, transpose(M3), M4, transpose(M4), M5 };
 
-    for (Size j = 0; j < LENGTH(testMatrices); j++) {
+    for (const auto& A : testMatrices) {
         Matrix Q, R;
         bool pivot = true;
-        const Matrix& A = testMatrices[j];
-
         const std::vector<Size> ipvt = qrDecomposition(A, Q, R, pivot);
 
         Matrix P(A.columns(), A.columns(), 0.0);
@@ -303,13 +299,12 @@ void MatricesTest::testQRSolve() {
                               bigM, transpose(bigM),
                               randM, transpose(randM) };
 
-    for (Size j = 0; j < LENGTH(testMatrices); j++) {
-        const Matrix& A = testMatrices[j];
+    for (const auto& A : testMatrices) {
         Array b(A.rows());
 
         for (Size k=0; k < 10; ++k) {
-            for (Array::iterator iter = b.begin(); iter != b.end(); ++iter) {
-                *iter = rng.next().value;
+            for (double& iter : b) {
+                iter = rng.next().value;
             }
             const Array x = qrSolve(A, b, true);
 
@@ -362,8 +357,7 @@ void MatricesTest::testInverse() {
     Real tol = 1.0e-12;
     Matrix testMatrices[] = { M1, M2, I, M5 };
 
-    for (Size j = 0; j < LENGTH(testMatrices); j++) {
-        const Matrix& A = testMatrices[j];
+    for (const auto& A : testMatrices) {
         const Matrix invA = inverse(A);
 
         const Matrix I1 = invA*A;
@@ -407,8 +401,8 @@ void MatricesTest::testDeterminant() {
     MersenneTwisterUniformRng rng(1234);
     for (Size j=0; j<100; ++j) {
         Matrix m(3, 3, 0.0);
-        for (Matrix::iterator iter = m.begin(); iter != m.end(); ++iter)
-            *iter = rng.next().value;
+        for (double& iter : m)
+            iter = rng.next().value;
 
         if ((j % 3) == 0U) {
             // every third matrix is a singular matrix
@@ -627,7 +621,7 @@ void MatricesTest::testMoorePenroseInverse() {
 namespace matrices_test {
     class MatrixMult {
       public:
-        explicit MatrixMult(const Matrix& m) : m_(m) {}
+        explicit MatrixMult(Matrix m) : m_(std::move(m)) {}
         Disposable<Array> operator()(const Array& x) const {
             Array retVal = m_*x;
             return retVal;
@@ -668,11 +662,11 @@ void MatricesTest::testIterativeSolvers() {
                 << "\n  rel tolerance : " << relTol);
     }
     const Array errors = Array(u.errors.begin(), u.errors.end());
-    for (Size i=0; i < errors.size(); ++i) {
-        const Array x = GMRES(MatrixMult(M1), 10, 1.01*errors[i]).solve(b, b).x;
+    for (double error : errors) {
+        const Array x = GMRES(MatrixMult(M1), 10, 1.01 * error).solve(b, b).x;
 
         const Real calculated = norm2(M1*x-b)/norm2(b);
-        const Real expected = errors[i];
+        const Real expected = error;
 
         if (std::fabs(calculated - expected) > relTol) {
             BOOST_FAIL("Failed to calculate solution error"
@@ -681,7 +675,7 @@ void MatricesTest::testIterativeSolvers() {
         }
     }
 
-    #if !defined(QL_NO_UBLAS_SUPPORT)
+#if !defined(QL_NO_UBLAS_SUPPORT)
     const Array v = GMRES(MatrixMult(M1), 1, relTol,
         MatrixMult(inverse(M1))).solve(b, b).x;
 
@@ -756,7 +750,7 @@ void MatricesTest::testInitializers() {
 }
 
 test_suite* MatricesTest::suite() {
-    test_suite* suite = BOOST_TEST_SUITE("Matrix tests");
+    auto* suite = BOOST_TEST_SUITE("Matrix tests");
 
     suite->add(QUANTLIB_TEST_CASE(&MatricesTest::testOrthogonalProjection));
     suite->add(QUANTLIB_TEST_CASE(&MatricesTest::testEigenvectors));
