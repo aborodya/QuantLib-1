@@ -88,7 +88,6 @@
 #include <ql/experimental/processes/hestonslvprocess.hpp>
 #include <ql/experimental/barrieroption/doublebarrieroption.hpp>
 #include <ql/experimental/barrieroption/analyticdoublebarrierbinaryengine.hpp>
-#include <ql/functional.hpp>
 
 #include <boost/assign/std/vector.hpp>
 #include <boost/math/special_functions/gamma.hpp>
@@ -676,14 +675,10 @@ namespace {
         Time maturity, Real eps,
         const ext::shared_ptr<HestonModel>& model) {
 
-        using namespace ext::placeholders;
-
         const AnalyticPDFHestonEngine pdfEngine(model);
         const Real sInit = model->process()->s0()->value();
         const Real xMin = Brent().solve(
-            ext::bind(std::minus<Real>(),
-                ext::bind(&AnalyticPDFHestonEngine::cdf,
-                            &pdfEngine, _1, maturity), eps),
+                        [&](Real x){ return pdfEngine.cdf(x, maturity) - eps; },
                         sInit*1e-3, sInit, sInit*0.001, 1000*sInit);
 
         return xMin;
@@ -1110,9 +1105,9 @@ void HestonSLVModelTest::testHestonFokkerPlanckFwdEquationLogLVLeverage() {
 
     const Real beta = 10.0;
     std::vector<ext::tuple<Real, Real, bool> > critPoints;
-    critPoints.push_back(ext::tuple<Real, Real, bool>(lowerBound, beta, true));
-    critPoints.push_back(ext::tuple<Real, Real, bool>(v0, beta/100, true));
-    critPoints.push_back(ext::tuple<Real, Real, bool>(upperBound, beta, true));
+    critPoints.emplace_back(lowerBound, beta, true);
+    critPoints.emplace_back(v0, beta / 100, true);
+    critPoints.emplace_back(upperBound, beta, true);
     const ext::shared_ptr<Fdm1dMesher> varianceMesher(
 		ext::make_shared<Concentrating1dMesher>(lowerBound, upperBound, vGrid, critPoints));
 
