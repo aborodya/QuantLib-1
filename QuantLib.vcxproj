@@ -728,9 +728,6 @@
     <ClInclude Include="ql\experimental\finitedifferences\vanillavppoption.hpp" />
     <ClInclude Include="ql\experimental\forward\all.hpp" />
     <ClInclude Include="ql\experimental\forward\analytichestonforwardeuropeanengine.hpp" />
-    <ClInclude Include="ql\experimental\futures\all.hpp" />
-    <ClInclude Include="ql\experimental\futures\overnightindexfuture.hpp" />
-    <ClInclude Include="ql\experimental\futures\overnightindexfutureratehelper.hpp" />
     <ClInclude Include="ql\experimental\fx\all.hpp" />
     <ClInclude Include="ql\experimental\fx\blackdeltacalculator.hpp" />
     <ClInclude Include="ql\experimental\fx\deltavolquote.hpp" />
@@ -944,6 +941,7 @@
     <ClInclude Include="ql\instruments\nonstandardswaption.hpp" />
     <ClInclude Include="ql\instruments\oneassetoption.hpp" />
     <ClInclude Include="ql\instruments\overnightindexedswap.hpp" />
+    <ClInclude Include="ql\instruments\overnightindexfuture.hpp" />
     <ClInclude Include="ql\instruments\payoffs.hpp" />
     <ClInclude Include="ql\instruments\quantobarrieroption.hpp" />
     <ClInclude Include="ql\instruments\quantoforwardvanillaoption.hpp" />
@@ -1248,12 +1246,14 @@
     <ClInclude Include="ql\methods\finitedifferences\utilities\all.hpp" />
     <ClInclude Include="ql\methods\finitedifferences\utilities\bsmrndcalculator.hpp" />
     <ClInclude Include="ql\methods\finitedifferences\utilities\cevrndcalculator.hpp" />
+    <ClInclude Include="ql\methods\finitedifferences\utilities\escroweddividendadjustment.hpp" />
     <ClInclude Include="ql\methods\finitedifferences\utilities\fdmaffinemodelswapinnervalue.hpp" />
     <ClInclude Include="ql\methods\finitedifferences\utilities\fdmaffinemodeltermstructure.hpp" />
     <ClInclude Include="ql\methods\finitedifferences\utilities\fdmboundaryconditionset.hpp" />
     <ClInclude Include="ql\methods\finitedifferences\utilities\fdmdirichletboundary.hpp" />
     <ClInclude Include="ql\methods\finitedifferences\utilities\fdmdiscountdirichletboundary.hpp" />
     <ClInclude Include="ql\methods\finitedifferences\utilities\fdmdividendhandler.hpp" />
+    <ClInclude Include="ql\methods\finitedifferences\utilities\fdmescrowedloginnervaluecalculator.hpp" />
     <ClInclude Include="ql\methods\finitedifferences\utilities\fdmindicesonboundary.hpp" />
     <ClInclude Include="ql\methods\finitedifferences\utilities\fdminnervaluecalculator.hpp" />
     <ClInclude Include="ql\methods\finitedifferences\utilities\fdmmesherintegral.hpp" />
@@ -1736,6 +1736,7 @@
     <ClInclude Include="ql\termstructures\yield\interpolatedsimplezerocurve.hpp" />
     <ClInclude Include="ql\termstructures\yield\nonlinearfittingmethods.hpp" />
     <ClInclude Include="ql\termstructures\yield\oisratehelper.hpp" />
+    <ClInclude Include="ql\termstructures\yield\overnightindexfutureratehelper.hpp" />
     <ClInclude Include="ql\termstructures\yield\piecewiseyieldcurve.hpp" />
     <ClInclude Include="ql\termstructures\yield\piecewisezerospreadedtermstructure.hpp" />
     <ClInclude Include="ql\termstructures\yield\quantotermstructure.hpp" />
@@ -2049,8 +2050,6 @@
     <ClCompile Include="ql\experimental\finitedifferences\glued1dmesher.cpp" />
     <ClCompile Include="ql\experimental\finitedifferences\vanillavppoption.cpp" />
     <ClCompile Include="ql\experimental\forward\analytichestonforwardeuropeanengine.cpp" />
-    <ClCompile Include="ql\experimental\futures\overnightindexfuture.cpp" />
-    <ClCompile Include="ql\experimental\futures\overnightindexfutureratehelper.cpp" />
     <ClCompile Include="ql\experimental\fx\blackdeltacalculator.cpp" />
     <ClCompile Include="ql\experimental\fx\deltavolquote.cpp" />
     <ClCompile Include="ql\experimental\inflation\cpicapfloorengines.cpp" />
@@ -2184,6 +2183,7 @@
     <ClCompile Include="ql\instruments\nonstandardswaption.cpp" />
     <ClCompile Include="ql\instruments\oneassetoption.cpp" />
     <ClCompile Include="ql\instruments\overnightindexedswap.cpp" />
+    <ClCompile Include="ql\instruments\overnightindexfuture.cpp" />
     <ClCompile Include="ql\instruments\payoffs.cpp" />
     <ClCompile Include="ql\instruments\quantobarrieroption.cpp" />
     <ClCompile Include="ql\instruments\quantoforwardvanillaoption.cpp" />
@@ -2363,11 +2363,13 @@
     <ClCompile Include="ql\methods\finitedifferences\tridiagonaloperator.cpp" />
     <ClCompile Include="ql\methods\finitedifferences\utilities\bsmrndcalculator.cpp" />
     <ClCompile Include="ql\methods\finitedifferences\utilities\cevrndcalculator.cpp" />
+    <ClCompile Include="ql\methods\finitedifferences\utilities\escroweddividendadjustment.cpp" />
     <ClCompile Include="ql\methods\finitedifferences\utilities\fdmaffinemodelswapinnervalue.cpp" />
     <ClCompile Include="ql\methods\finitedifferences\utilities\fdmaffinemodeltermstructure.cpp" />
     <ClCompile Include="ql\methods\finitedifferences\utilities\fdmdirichletboundary.cpp" />
     <ClCompile Include="ql\methods\finitedifferences\utilities\fdmdiscountdirichletboundary.cpp" />
     <ClCompile Include="ql\methods\finitedifferences\utilities\fdmdividendhandler.cpp" />
+    <ClCompile Include="ql\methods\finitedifferences\utilities\fdmescrowedloginnervaluecalculator.cpp" />
     <ClCompile Include="ql\methods\finitedifferences\utilities\fdmindicesonboundary.cpp" />
     <ClCompile Include="ql\methods\finitedifferences\utilities\fdminnervaluecalculator.cpp" />
     <ClCompile Include="ql\methods\finitedifferences\utilities\fdmmesherintegral.cpp" />
@@ -2698,6 +2700,7 @@
     <ClCompile Include="ql\termstructures\yield\forwardstructure.cpp" />
     <ClCompile Include="ql\termstructures\yield\nonlinearfittingmethods.cpp" />
     <ClCompile Include="ql\termstructures\yield\oisratehelper.cpp" />
+    <ClCompile Include="ql\termstructures\yield\overnightindexfutureratehelper.cpp" />
     <ClCompile Include="ql\termstructures\yield\ratehelpers.cpp" />
     <ClCompile Include="ql\termstructures\yield\zeroyieldstructure.cpp" />
     <ClCompile Include="ql\termstructures\yieldtermstructure.cpp" />
