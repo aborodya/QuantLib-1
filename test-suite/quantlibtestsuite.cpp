@@ -182,6 +182,7 @@
 #include "squarerootclvmodel.hpp"
 #include "swingoption.hpp"
 #include "stats.hpp"
+#include "subperiodcoupons.hpp"
 #include "swap.hpp"
 #include "swapforwardmappings.hpp"
 #include "swaption.hpp"
@@ -459,8 +460,10 @@ test_suite* init_unit_test_suite(int, char* []) {
     test->add(ScheduleTest::suite());
     test->add(SettingsTest::suite());
     test->add(ShortRateModelTest::suite(speed)); // fails with QL_USE_INDEXED_COUPON
+    test->add(SofrFuturesTest::suite());
     test->add(Solver1DTest::suite());
     test->add(StatisticsTest::suite());
+    test->add(SubPeriodsCouponTest::suite());
     test->add(SwapTest::suite());
     test->add(SwapForwardMappingsTest::suite());
     test->add(SwaptionTest::suite(speed));
@@ -514,7 +517,6 @@ test_suite* init_unit_test_suite(int, char* []) {
     test->add(PartialTimeBarrierOptionTest::suite());
     test->add(QuantoOptionTest::experimental());
     test->add(RiskNeutralDensityCalculatorTest::experimental(speed));
-    test->add(SofrFuturesTest::suite());
     test->add(SpreadOptionTest::suite());
     test->add(SquareRootCLVModelTest::experimental());
     test->add(SwingOptionTest::suite(speed));
