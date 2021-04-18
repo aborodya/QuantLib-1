@@ -5,7 +5,6 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
-      max-parallel: 12
       matrix:
         include:
           - name: "gcc 5.4 (Boost 1.66)"
@@ -13,6 +12,7 @@ jobs:
             tag: xenial
             cc: gcc
             cxx: g++
+            cxxflags: "-std=c++11"
           - name: "gcc 6.3 (Boost 1.66)"
             shortname: gcc6
             tag: zesty
