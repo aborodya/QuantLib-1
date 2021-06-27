@@ -73,11 +73,9 @@ using namespace boost::unit_test_framework;
 
 
 namespace {
-    int worker(const std::string& cmd) {
-        return system(cmd.c_str());
-    }
+    inline int worker(const std::string& cmd) { return system(cmd.c_str()); }
 
-    counter_t test_enabled(test_unit_id id) {
+    inline counter_t test_enabled(test_unit_id id) {
         test_case_counter tcc;
         boost::unit_test::traverse_test_tree(id, tcc);
 
@@ -91,7 +89,7 @@ namespace {
         const id_map_t& map() const { return idMap_; }
         test_unit_id testSuiteId() const { return testSuiteId_; }
 
-        bool visit(test_unit const& tu) {
+        bool visit(test_unit const& tu) override {
             if (tu.p_parent_id == framework::master_test_suite().p_id) {
                 QL_REQUIRE(!tu.p_name.get().compare("QuantLib test suite"),
                      "could not find QuantLib test suite");
@@ -101,8 +99,8 @@ namespace {
             return test_tree_visitor::visit(tu);
         }
 
-        void visit(test_case const& tc) {
-            if (test_enabled(tc.p_id) != 0u)
+        void visit(test_case const& tc) override {
+            if (test_enabled(tc.p_id) != 0U)
                 idMap_[tc.p_parent_id].push_back(tc.p_id);
         }
 
@@ -120,7 +118,7 @@ namespace {
 
     class TestCaseReportAggregator : public test_tree_visitor {
       public:
-        void test_suite_finish( test_suite const& ts)  {
+        void test_suite_finish(test_suite const& ts) override {
             results_collect_helper ch( s_rc_impl().m_results_store[ts.p_id], ts );
             traverse_test_tree( ts, ch );
         }
@@ -143,8 +141,7 @@ namespace {
 
     const char* const namesLogMutexName = "named_log_mutex";
 
-    void output_logstream(
-        std::ostream& out, std::streambuf* outBuf, std::stringstream& s) {
+    inline void output_logstream(std::ostream& out, std::streambuf* outBuf, std::stringstream& s) {
 
         static named_mutex mutex(open_or_create, namesLogMutexName);
         scoped_lock<named_mutex> lock(mutex);
@@ -158,7 +155,7 @@ namespace {
 
         for (std::vector<std::string>::const_iterator iter = tok.begin();
             iter != tok.end(); ++iter) {
-            if ((iter->length() != 0u) && (iter->compare("Running 1 test case...") != 0)) {
+            if ((iter->length() != 0U) && (*iter != "Running 1 test case...")) {
                 out << *iter  << std::endl;
             }
         }
@@ -167,8 +164,8 @@ namespace {
         out.rdbuf(s.rdbuf());
     }
 
-    std::ostream& log_stream() {
-    #if BOOST_VERSION < 106200
+    inline std::ostream& log_stream() {
+#if BOOST_VERSION < 106200
         return s_log_impl().stream();
     #else
         return s_log_impl().m_log_formatter_data.front().stream();
@@ -179,8 +176,7 @@ namespace {
 
 test_suite* init_unit_test_suite(int, char* []);
 
-int main( int argc, char* argv[] )
-{
+inline int main(int argc, char* argv[]) {
     typedef QuantLib::Time Time;
 
     const char* const profileFileName = ".unit_test_profile.txt";
@@ -265,7 +261,7 @@ int main( int argc, char* argv[] )
                 sizeof(RuntimeLog));
 
             // run root test cases in master process
-            const std::list<test_unit_id> qlRoot = (tcc.map().count(tcc.testSuiteId())) != 0u ?
+            const std::list<test_unit_id> qlRoot = (tcc.map().count(tcc.testSuiteId())) != 0U ?
                                                        tcc.map().find(tcc.testSuiteId())->second :
                                                        std::list<test_unit_id>();
 
@@ -291,26 +287,18 @@ int main( int argc, char* argv[] )
 
             std::multimap<Time, test_unit_id> testsSortedByRunTime;
 
-            for (TestCaseCollector::id_map_t::const_iterator
-                p_it = tcc.map().begin();
-                p_it != tcc.map().end(); ++p_it) {
+            for (auto p_it = tcc.map().begin(); p_it != tcc.map().end(); ++p_it) {
 
                 if (p_it->first != tcc.testSuiteId()) {
-                    for (std::list<test_unit_id>::const_iterator
-                        it =  p_it->second.begin();
-                        it != p_it->second.end(); ++it) {
+                    for (unsigned long it : p_it->second) {
 
-                        const std::string name
-                            = framework::get(*it, TUT_ANY).p_name;
+                        const std::string name = framework::get(it, TUT_ANY).p_name;
 
-                        if (runTimeLog.count(name) != 0u) {
+                        if (runTimeLog.count(name) != 0U) {
+                            testsSortedByRunTime.insert(std::make_pair(runTimeLog[name], it));
+                        } else {
                             testsSortedByRunTime.insert(
-                                std::make_pair(runTimeLog[name], *it));
-                        }
-                        else {
-                            testsSortedByRunTime.insert(
-                                std::make_pair(
-                                    std::numeric_limits<Time>::max(), *it));
+                                std::make_pair(std::numeric_limits<Time>::max(), it));
                         }
                     }
                 }

@@ -428,7 +428,7 @@ namespace QuantLib {
         template <bool compatible>
         boost::gregorian::greg_month mapQLDateType2Boost(Month m) {
             if (compatible) {
-                return boost::gregorian::greg_month(m);
+                return {m};
             }
             else {
                 switch (m) {
@@ -507,7 +507,7 @@ namespace QuantLib {
                        "day outside month (" << Integer(m) << ") day-range "
                        << "[1," << len << "]");
 
-            return boost::gregorian::date(y, bM, d);
+            return {y, bM, d};
         }
     }
 
@@ -686,7 +686,7 @@ namespace QuantLib {
         const Day eoM = boost::gregorian::gregorian_calendar::end_of_month_day(
             d.year(), mapQLDateType2Boost<compatibleEnums>(d.month()));
 
-        return Date(eoM, m, y);
+        return {eoM, m, y};
     }
 
     bool Date::isEndOfMonth(const Date& d) {
