@@ -39,6 +39,7 @@ QL_TEST_SRCS = \
 	creditdefaultswap.cpp \
 	creditriskplus.cpp \
 	crosscurrencyratehelpers.cpp \
+	currency.cpp \
 	curvestates.cpp \
 	dates.cpp \
 	daycounters.cpp \
@@ -80,6 +81,7 @@ QL_TEST_SRCS = \
 	inflationcpicapfloor.cpp \
 	inflationcpiswap.cpp \
 	inflationvolatility.cpp \
+	inflationzciisinterpolation.cpp \
 	instruments.cpp \
 	integrals.cpp \
 	interestrates.cpp \
@@ -201,6 +203,7 @@ QL_TEST_HDRS = \
 	creditdefaultswap.hpp \
 	creditriskplus.hpp \
 	crosscurrencyratehelpers.hpp \
+	currency.hpp \
 	curvestates.hpp \
 	dates.hpp \
 	daycounters.hpp \
@@ -242,6 +245,7 @@ QL_TEST_HDRS = \
 	inflationcpicapfloor.hpp \
 	inflationcpiswap.hpp \
 	inflationvolatility.hpp \
+	inflationzciisinterpolation.hpp \
 	instruments.hpp \
 	integrals.hpp \
 	interestrates.hpp \

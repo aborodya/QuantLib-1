@@ -215,6 +215,9 @@
     <ClCompile Include="inflationvolatility.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="inflationzciisinterpolation.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="instruments.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -489,6 +492,9 @@
     <ClCompile Include="zerocouponswap.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="currency.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="americanoption.hpp">
@@ -693,6 +699,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="inflationvolatility.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="inflationzciisinterpolation.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="instruments.hpp">
@@ -975,6 +984,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="zerocouponswap.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="currency.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
