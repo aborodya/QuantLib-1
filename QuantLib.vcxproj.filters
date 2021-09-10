@@ -2736,6 +2736,9 @@
     <ClInclude Include="ql\time\calendars\canada.hpp">
       <Filter>time\calendars</Filter>
     </ClInclude>
+    <ClInclude Include="ql\time\calendars\chile.hpp">
+      <Filter>time\calendars</Filter>
+    </ClInclude>
     <ClInclude Include="ql\time\calendars\china.hpp">
       <Filter>time\calendars</Filter>
     </ClInclude>
@@ -4385,6 +4388,7 @@
     <ClInclude Include="ql\instruments\zerocouponswap.hpp">
       <Filter>instruments</Filter>
     </ClInclude>
+    <ClInclude Include="ql\pricingengines\bond\riskybondengine.hpp" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="ql\methods\montecarlo\brownianbridge.cpp">
@@ -5860,6 +5864,9 @@
     <ClCompile Include="ql\time\calendars\canada.cpp">
       <Filter>time\calendars</Filter>
     </ClCompile>
+    <ClCompile Include="ql\time\calendars\chile.cpp">
+      <Filter>time\calendars</Filter>
+    </ClCompile>
     <ClCompile Include="ql\time\calendars\china.cpp">
       <Filter>time\calendars</Filter>
     </ClCompile>
@@ -7090,5 +7097,6 @@
     <ClCompile Include="ql\instruments\zerocouponswap.cpp">
       <Filter>instruments</Filter>
     </ClCompile>
+    <ClCompile Include="ql\pricingengines\bond\riskybondengine.cpp" />
   </ItemGroup>
 </Project>

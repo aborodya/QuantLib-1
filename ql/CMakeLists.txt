@@ -680,6 +680,7 @@ set(QuantLib_SRC
     pricingengines/blackscholescalculator.cpp
     pricingengines/bond/bondfunctions.cpp
     pricingengines/bond/discountingbondengine.cpp
+    pricingengines/bond/riskybondengine.cpp
     pricingengines/capfloor/analyticcapfloorengine.cpp
     pricingengines/capfloor/bacheliercapfloorengine.cpp
     pricingengines/capfloor/blackcapfloorengine.cpp
@@ -860,6 +861,7 @@ set(QuantLib_SRC
     time/calendars/botswana.cpp
     time/calendars/brazil.cpp
     time/calendars/canada.cpp
+    time/calendars/chile.cpp
     time/calendars/china.cpp
     time/calendars/czechrepublic.cpp
     time/calendars/denmark.cpp
@@ -1947,6 +1949,7 @@ set(QuantLib_HDR
     pricingengines/bond/all.hpp
     pricingengines/bond/bondfunctions.hpp
     pricingengines/bond/discountingbondengine.hpp
+    pricingengines/bond/riskybondengine.hpp
     pricingengines/capfloor/all.hpp
     pricingengines/capfloor/analyticcapfloorengine.hpp
     pricingengines/capfloor/bacheliercapfloorengine.hpp
@@ -2220,6 +2223,7 @@ set(QuantLib_HDR
     time/calendars/botswana.hpp
     time/calendars/brazil.hpp
     time/calendars/canada.hpp
+    time/calendars/chile.hpp
     time/calendars/china.hpp
     time/calendars/czechrepublic.hpp
     time/calendars/denmark.hpp
