@@ -75,6 +75,7 @@ testCaseCollection.xml
 *.ipch
 CMakeFiles
 *.cmake
+!cmake/*.cmake
 TAGS
 .dirstamp
 
