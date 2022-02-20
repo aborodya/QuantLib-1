@@ -1036,7 +1036,7 @@ void DayCounterTest::testIntraday() {
     const DayCounter dayCounters[]
         = { ActualActual(ActualActual::ISDA), Actual365Fixed(), Actual360() };
 
-    for (DayCounter dc : dayCounters) {
+    for (const DayCounter& dc : dayCounters) {
         const Time expected = ((12*60 + 34)*60 + 17 + 0.231298)
                              * dc.yearFraction(d1, d1+1)/86400
                              + dc.yearFraction(d1, d1+2);
