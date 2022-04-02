@@ -281,6 +281,7 @@ set(QL_SOURCES
     instruments/basketoption.cpp
     instruments/bmaswap.cpp
     instruments/bond.cpp
+    instruments/bondforward.cpp
     instruments/bonds/btp.cpp
     instruments/bonds/cmsratebond.cpp
     instruments/bonds/convertiblebonds.cpp
@@ -298,7 +299,6 @@ set(QL_SOURCES
     instruments/dividendbarrieroption.cpp
     instruments/dividendvanillaoption.cpp
     instruments/europeanoption.cpp
-    instruments/fixedratebondforward.cpp
     instruments/floatfloatswap.cpp
     instruments/floatfloatswaption.cpp
     instruments/forward.cpp
@@ -1273,6 +1273,7 @@ set(QL_HEADERS
     indexes/ibor/sonia.hpp
     indexes/ibor/thbfix.hpp
     indexes/ibor/tibor.hpp
+    indexes/ibor/tona.hpp
     indexes/ibor/trlibor.hpp
     indexes/ibor/usdlibor.hpp
     indexes/ibor/wibor.hpp
@@ -1304,6 +1305,7 @@ set(QL_HEADERS
     instruments/basketoption.hpp
     instruments/bmaswap.hpp
     instruments/bond.hpp
+    instruments/bondforward.hpp
     instruments/bonds/btp.hpp
     instruments/bonds/cmsratebond.hpp
     instruments/bonds/convertiblebonds.hpp
