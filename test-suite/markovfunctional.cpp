@@ -28,8 +28,8 @@
 #include <ql/termstructures/volatility/swaption/swaptionconstantvol.hpp>
 #include <ql/termstructures/volatility/optionlet/constantoptionletvol.hpp>
 #include <ql/termstructures/volatility/swaption/swaptionvolmatrix.hpp>
-#include <ql/termstructures/volatility/swaption/swaptionvolcube1.hpp>
-#include <ql/termstructures/volatility/swaption/swaptionvolcube2.hpp>
+#include <ql/termstructures/volatility/swaption/sabrswaptionvolatilitycube.hpp>
+#include <ql/termstructures/volatility/swaption/interpolatedswaptionvolatilitycube.hpp>
 #include <ql/termstructures/volatility/capfloor/capfloortermvolsurface.hpp>
 #include <ql/termstructures/volatility/optionlet/optionletstripper1.hpp>
 #include <ql/termstructures/volatility/optionlet/strippedoptionletadapter.hpp>
@@ -241,7 +241,7 @@ namespace {
         };
 
         q6m.reserve(10 + 15 + 35);
-        for (double i : q6mh) {
+        for (Real i : q6mh) {
             q6m.push_back(ext::shared_ptr<Quote>(new SimpleQuote(i)));
         }
 
@@ -450,10 +450,10 @@ namespace {
                                                     // just a test...)
 
         // return Handle<SwaptionVolatilityStructure>(new
-        // SwaptionVolCube2(swaptionVolAtm,optionTenorsSmile,swapTenorsSmile,strikeSpreads,qSwSmile,swapIndex,shortSwapIndex,false));
+        // InterpolatedSwaptionVolatilityCube(swaptionVolAtm,optionTenorsSmile,swapTenorsSmile,strikeSpreads,qSwSmile,swapIndex,shortSwapIndex,false));
         // // bilinear interpolation gives nasty digitals
         Handle<SwaptionVolatilityStructure> res(
-            ext::shared_ptr<SwaptionVolatilityStructure>(new SwaptionVolCube1(
+            ext::shared_ptr<SwaptionVolatilityStructure>(new SabrSwaptionVolatilityCube(
                 swaptionVolAtm, optionTenorsSmile, swapTenorsSmile,
                 strikeSpreads, qSwSmile, swapIndex, shortSwapIndex, true,
                 parameterGuess, parameterFixed, true, ec,
@@ -650,7 +650,7 @@ void MarkovFunctionalTest::testKahaleSmileSection() {
     std::vector<Real> money;
     std::vector<Real> calls0;
 
-    for (double strike : strikes) {
+    for (Real strike : strikes) {
         money.push_back(strike / atm);
         calls0.push_back(blackFormula(Option::Call, strike, atm, 0.50 * std::sqrt(t), 1.0, 0.0));
     }

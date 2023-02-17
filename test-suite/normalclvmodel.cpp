@@ -20,8 +20,8 @@
 
 #include "normalclvmodel.hpp"
 #include "utilities.hpp"
-#include <ql/experimental/barrieroption/analyticdoublebarrierbinaryengine.hpp>
-#include <ql/experimental/barrieroption/doublebarrieroption.hpp>
+#include <ql/pricingengines/barrier/analyticdoublebarrierbinaryengine.hpp>
+#include <ql/instruments/doublebarrieroption.hpp>
 #include <ql/experimental/finitedifferences/fdornsteinuhlenbeckvanillaengine.hpp>
 #include <ql/experimental/models/normalclvmodel.hpp>
 #include <ql/experimental/volatility/sabrvoltermstructure.hpp>
@@ -81,7 +81,7 @@ void NormalCLVModelTest::testBSCumlativeDistributionFunction() {
     const BSMRNDCalculator rndCalculator(bsProcess);
 
 
-    constexpr Real tol = 1e5*QL_EPSILON;
+    constexpr double tol = 1e5 * QL_EPSILON;
     const Time t = dc.yearFraction(today, maturity);
     for (Real x=10; x < 400; x+=10) {
         const Real calculated = m.cdf(maturity, x);

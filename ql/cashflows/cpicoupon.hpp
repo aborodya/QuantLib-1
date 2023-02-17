@@ -177,7 +177,7 @@ namespace QuantLib {
 
         //! value used on base date
         /*! This does not have to agree with index on that date. */
-        virtual Real baseFixing() const;
+        Real baseFixing() const override;
         //! you may not have a valid date
         Date baseDate() const override;
 
@@ -191,8 +191,7 @@ namespace QuantLib {
 
         ext::shared_ptr<ZeroInflationIndex> cpiIndex() const;
 
-        //! redefined to use baseFixing() and interpolation
-        Real amount() const override;
+        Real indexFixing() const override;
 
       protected:
         Real baseFixing_;
@@ -256,16 +255,16 @@ namespace QuantLib {
         std::vector<Real> notionals_;
         std::vector<Real> fixedRates_;  // aka gearing
         DayCounter paymentDayCounter_;
-        BusinessDayConvention paymentAdjustment_;
+        BusinessDayConvention paymentAdjustment_ = ModifiedFollowing;
         Calendar paymentCalendar_;
-        CPI::InterpolationType observationInterpolation_;
-        bool subtractInflationNominal_;
+        CPI::InterpolationType observationInterpolation_ = CPI::AsIndex;
+        bool subtractInflationNominal_ = true;
         std::vector<Spread> spreads_;
         std::vector<Rate> caps_, floors_;
         Period exCouponPeriod_;
         Calendar exCouponCalendar_;
-        BusinessDayConvention exCouponAdjustment_;
-        bool exCouponEndOfMonth_;
+        BusinessDayConvention exCouponAdjustment_ = Following;
+        bool exCouponEndOfMonth_ = false;
     };
 
 

@@ -41,7 +41,7 @@ namespace QuantLib {
 
         Real K = payoff->strike();
         Real S = process_->x0();
-        QL_REQUIRE(S >= 0.0, "negative or null underlying given");
+        QL_REQUIRE(S > 0.0, "negative or null underlying given");
         QL_REQUIRE(!triggered(S), "barrier touched");
 
         DoubleBarrier::Type barrierType = arguments_.barrierType;
@@ -125,7 +125,7 @@ namespace QuantLib {
             results_.value = european - barrierOut;
         results_.additionalResults["vanilla"] = european;
         results_.additionalResults["barrierOut"] = barrierOut;
-        results_.additionalResults["barrierIn"] = european - barrierOut;
+        results_.additionalResults["barrierIn"] = Real(european - barrierOut);
         results_.additionalResults["rebateIn"] = rebateIn;
     }
 

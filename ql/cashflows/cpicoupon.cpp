@@ -176,37 +176,15 @@ namespace QuantLib {
         return baseFixing_;
     }
 
-    Real CPICashFlow::amount() const {
-        Real I0 = baseFixing();
-        Real I1;
-
+    Real CPICashFlow::indexFixing() const {
         if (observationDate_ != Date()) {
-            I1 = CPI::laggedFixing(cpiIndex(), observationDate_, observationLag_, interpolation_);
+            return CPI::laggedFixing(cpiIndex(), observationDate_, observationLag_, interpolation_);
         } else {
             // we get to this branch when the deprecated constructor was used; it will be phased out
-            if (interpolation() == CPI::AsIndex ) {
-                I1 = index()->fixing(fixingDate());
-            } else {
-                std::pair<Date,Date> dd = inflationPeriod(fixingDate(), frequency());
-                Real indexStart = index()->fixing(dd.first);
-                if (interpolation() == CPI::Linear) {
-                    Real indexEnd = index()->fixing(dd.second+Period(1,Days));
-                    // linear interpolation
-                    I1 = indexStart + (indexEnd - indexStart) * (fixingDate() - dd.first)
-                        / ( (dd.second+Period(1,Days)) - dd.first);
-                } else {
-                    // no interpolation, i.e. flat = constant, so use start-of-period value
-                    I1 = indexStart;
-                }
-            }
+            return CPI::laggedFixing(cpiIndex(), fixingDate() + observationLag_, observationLag_,
+                                     interpolation_);
         }
-
-        if (growthOnly())
-            return notional() * (I1 / I0 - 1.0);
-        else
-            return notional() * (I1 / I0);
     }
-
 
     CPILeg::CPILeg(const Schedule& schedule,
                    ext::shared_ptr<ZeroInflationIndex> index,
@@ -214,9 +192,9 @@ namespace QuantLib {
                    const Period& observationLag)
     : schedule_(schedule), index_(std::move(index)), baseCPI_(baseCPI),
       observationLag_(observationLag), paymentDayCounter_(Thirty360(Thirty360::BondBasis)),
-      paymentAdjustment_(ModifiedFollowing), paymentCalendar_(schedule.calendar()),
-      observationInterpolation_(CPI::AsIndex),
-      subtractInflationNominal_(true), spreads_(std::vector<Real>(1, 0)) {}
+      paymentCalendar_(schedule.calendar()),
+
+      spreads_(std::vector<Real>(1, 0)) {}
 
 
     CPILeg& CPILeg::withObservationInterpolation(CPI::InterpolationType interp) {

@@ -42,11 +42,16 @@ namespace QuantLib {
     namespace detail {
         // havent figured out how to do this in-place
         struct multiplyV {
+            /*! \deprecated Use `auto` or `decltype` instead.
+                            Deprecated in version 1.29.
+            */
+            QL_DEPRECATED
             typedef std::vector<Real> result_type;
+
             std::vector<Real> operator()(Real d, std::vector<Real> v) 
             {
                 std::transform(v.begin(), v.end(), v.begin(), 
-                               [=](Real x){ return x*d; });
+                               [=](Real x) -> Real { return x * d; });
                 return v;
             }
         };
@@ -92,7 +97,6 @@ namespace QuantLib {
      // this class template always to be fully specialized:
      private:
        IntegrationBase() = default;
-       ~IntegrationBase() override = default;
     };
     //@}
     
@@ -343,7 +347,7 @@ namespace QuantLib {
                 // systemic term:
                 factorWeights_[iVar].end(), allFactors.begin(),
                 // idiosyncratic term:
-                allFactors[numFactors()+iVar] * idiosyncFctrs_[iVar]);
+                Real(allFactors[numFactors()+iVar] * idiosyncFctrs_[iVar]));
         }
         // \to do write variants of the above, although is the most common case
 
@@ -569,7 +573,7 @@ namespace QuantLib {
         Real latentVariableCorrel(Size iVar1, Size iVar2) const {
             // true for any normalized combination
             Real init = (iVar1 == iVar2 ? 
-                idiosyncFctrs_[iVar1] * idiosyncFctrs_[iVar1] : 0.);
+                idiosyncFctrs_[iVar1] * idiosyncFctrs_[iVar1] : Real(0.));
             return std::inner_product(factorWeights_[iVar1].begin(), 
                 factorWeights_[iVar1].end(), factorWeights_[iVar2].begin(), 
                     init);
@@ -654,7 +658,7 @@ namespace QuantLib {
             idiosyncFctrs_.push_back(std::sqrt(1.-
                     std::inner_product(factorWeights[i].begin(), 
                 factorWeights[i].end(), 
-                factorWeights[i].begin(), 0.)));
+                factorWeights[i].begin(), Real(0.))));
             // while at it, check sizes are coherent:
             QL_REQUIRE(factorWeights[i].size() == nFactors_, 
                 "Name " << i << " provides a different number of factors");
@@ -668,9 +672,9 @@ namespace QuantLib {
     : nFactors_(1),
       nVariables_(factorWeights.size())
     {
-        for (double factorWeight : factorWeights)
+        for (Real factorWeight : factorWeights)
             factorWeights_.emplace_back(1, factorWeight);
-        for (double factorWeight : factorWeights)
+        for (Real factorWeight : factorWeights)
             idiosyncFctrs_.push_back(std::sqrt(1. - factorWeight * factorWeight));
         //convert row to column vector....
         copula_ = copulaType(factorWeights_, ini);
@@ -778,7 +782,7 @@ namespace QuantLib {
           urng_(seed) {
             // 1 == urng.dimension() is enforced by the sample type
             const std::vector<Real>& varF = copula.varianceFactors();
-            for (double i : varF) // ...use back inserter lambda
+            for (Real i : varF) // ...use back inserter lambda
                 trng_.push_back(PolarStudentTRng<urng_type>(2. / (1. - i * i), urng_));
         }
         const sample_type& nextSequence() const {

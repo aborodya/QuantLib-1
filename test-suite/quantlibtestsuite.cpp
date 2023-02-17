@@ -92,6 +92,7 @@
 #include "doublebinaryoption.hpp"
 #include "europeanoption.hpp"
 #include "everestoption.hpp"
+#include "equityindex.hpp"
 #include "exchangerate.hpp"
 #include "extendedtrees.hpp"
 #include "extensibleoptions.hpp"
@@ -121,7 +122,6 @@
 #include "inflationcpicapfloor.hpp"
 #include "inflationcpiswap.hpp"
 #include "inflationvolatility.hpp"
-#include "inflationzciisinterpolation.hpp"
 #include "instruments.hpp"
 #include "integrals.hpp"
 #include "interestrates.hpp"
@@ -252,14 +252,6 @@ namespace {
 
 }
 
-#if defined(QL_ENABLE_SESSIONS)
-namespace QuantLib {
-
-    ThreadKey sessionId() { return {}; }
-
-}
-#endif
-
 QuantLib::Date evaluation_date(int argc, char** argv) {
     /*! Dead simple parser:
         - passing --date=YYYY-MM-DD causes the test suite to run on
@@ -359,6 +351,7 @@ test_suite* init_unit_test_suite(int, char* []) {
     test->add(QUANTLIB_TEST_CASE(startTimer));
 
     test->add(AmericanOptionTest::suite(speed));
+    test->add(AmortizingBondTest::suite());
     test->add(AndreasenHugeVolatilityInterplTest::suite(speed));
     test->add(ArrayTest::suite());
     test->add(AsianOptionTest::suite(speed));
@@ -394,6 +387,7 @@ test_suite* init_unit_test_suite(int, char* []) {
     test->add(DigitalOptionTest::suite());
     test->add(DistributionTest::suite(speed));
     test->add(DividendOptionTest::suite());
+    test->add(EquityIndexTest::suite());
     test->add(EuropeanOptionTest::suite());
     test->add(ExchangeRateTest::suite());
     test->add(FastFourierTransformTest::suite());
@@ -411,13 +405,13 @@ test_suite* init_unit_test_suite(int, char* []) {
     test->add(GJRGARCHModelTest::suite(speed));
     test->add(GsrTest::suite());
     test->add(HestonModelTest::suite(speed));
+    test->add(HestonSLVModelTest::suite(speed));
     test->add(HybridHestonHullWhiteProcessTest::suite(speed));
     test->add(IndexTest::suite());
     test->add(InflationTest::suite());
     test->add(InflationCapFloorTest::suite());
     test->add(InflationCapFlooredCouponTest::suite());
     test->add(InflationCPIBondTest::suite());
-    test->add(InflationZCIISInterpolationTest::suite());
     test->add(InstrumentTest::suite());
     test->add(IntegralTest::suite());
     test->add(InterestRateTest::suite());
@@ -482,7 +476,6 @@ test_suite* init_unit_test_suite(int, char* []) {
     test->add(ZeroCouponSwapTest::suite());
 
     // tests for experimental classes
-    test->add(AmortizingBondTest::suite());
     test->add(AsianOptionTest::experimental(speed));
     test->add(BasismodelsTest::suite());
     test->add(BasisSwapRateHelpersTest::suite());
@@ -507,7 +500,6 @@ test_suite* init_unit_test_suite(int, char* []) {
     test->add(ExtensibleOptionsTest::suite());
     test->add(GaussianQuadraturesTest::experimental());
     test->add(HestonModelTest::experimental());
-    test->add(HestonSLVModelTest::experimental(speed));
     test->add(HimalayaOptionTest::suite());
     test->add(InflationCPICapFloorTest::suite());
     test->add(InflationVolTest::suite());
