@@ -627,6 +627,7 @@ namespace QuantLib {
             maturityDate_ = iborIndex_->fixingCalendar().advance(
                 spotDate, *periodToStart_ + iborIndex_->tenor(), iborIndex_->businessDayConvention(),
                 iborIndex_->endOfMonth());
+
         } else if ((immOffsetStart_) && (immOffsetEnd_)) { // NOLINT(readability-implicit-bool-conversion)
             earliestDate_ = iborIndex_->fixingCalendar().adjust(nthImmDate(spotDate, *immOffsetStart_));
             maturityDate_ = iborIndex_->fixingCalendar().adjust(nthImmDate(spotDate, *immOffsetEnd_));
@@ -884,7 +885,7 @@ namespace QuantLib {
     Real SwapRateHelper::impliedQuote() const {
         QL_REQUIRE(termStructure_ != nullptr, "term structure not set");
         // we didn't register as observers - force calculation
-        swap_->recalculate();
+        swap_->deepUpdate();
         // weak implementation... to be improved
         static const Spread basisPoint = 1.0e-4;
         Real floatingLegNPV = swap_->floatingLegNPV();
@@ -987,7 +988,7 @@ namespace QuantLib {
     Real BMASwapRateHelper::impliedQuote() const {
         QL_REQUIRE(termStructure_ != nullptr, "term structure not set");
         // we didn't register as observers - force calculation
-        swap_->recalculate();
+        swap_->deepUpdate();
         return swap_->fairLiborFraction();
     }
 

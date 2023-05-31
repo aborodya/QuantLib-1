@@ -33,9 +33,23 @@ FOR A PARTICULAR PURPOSE.  See the license for more details.
 #include <ql/patterns/singleton.hpp>
 #include <ql/shared_ptr.hpp>
 #include <ql/types.hpp>
-#include <boost/unordered_set.hpp>
 #include <unordered_set>
 #include <set>
+
+#if !defined(QL_USE_STD_SHARED_PTR) && BOOST_VERSION < 107400
+
+namespace std {
+
+    template<typename T>
+    struct hash<boost::shared_ptr<T>> {
+        std::size_t operator()(const boost::shared_ptr<T>& ptr) const noexcept {
+            return std::hash<typename boost::shared_ptr<T>::element_type*>()(ptr.get());
+        }
+    };
+
+}
+
+#endif
 
 #ifndef QL_ENABLE_THREAD_SAFE_OBSERVER_PATTERN
 
@@ -100,7 +114,7 @@ namespace QuantLib {
     /*! \ingroup patterns */
     class Observer { // NOLINT(cppcoreguidelines-special-member-functions)
       private:
-        typedef boost::unordered_set<ext::shared_ptr<Observable> > set_type;
+        typedef std::unordered_set<ext::shared_ptr<Observable>> set_type;
       public:
         typedef set_type::iterator iterator;
 
@@ -116,8 +130,18 @@ namespace QuantLib {
 
         /*! register with all observables of a given observer. Note
             that this does not include registering with the observer
-            itself. */
+            itself.
+
+            \deprecated This method was introduced to work around incorrect behaviour
+                        caused by limiting notifications from LazyObject instances to
+                        the first notification. The default behaviour of LazyObject was
+                        changed to forward all notifications so that a call to this
+                        method should no longer be necessary.
+                        Deprecated in version 1.30.
+        */
+        [[deprecated("no longer necessary")]]
         void registerWithObservables(const ext::shared_ptr<Observer>&);
+
         Size unregisterWith(const ext::shared_ptr<Observable>&);
         void unregisterWithAll();
 
@@ -263,7 +287,7 @@ namespace QuantLib {
         friend class Observable;
         friend class ObservableSettings;
       private:
-        typedef boost::unordered_set<ext::shared_ptr<Observable> > set_type;
+        typedef std::unordered_set<ext::shared_ptr<Observable>> set_type;
       public:
         typedef set_type::iterator iterator;
 
@@ -277,8 +301,18 @@ namespace QuantLib {
         registerWith(const ext::shared_ptr<Observable>&);
         /*! register with all observables of a given observer. Note
             that this does not include registering with the observer
-            itself. */
+            itself.
+
+            \deprecated This method was introduced to work around incorrect behaviour
+                        caused by limiting notifications from LazyObject instances to
+                        the first notification. The default behaviour of LazyObject was
+                        changed to forward all notifications so that a call to this
+                        method should no longer be necessary.
+                        Deprecated in version 1.30.
+        */
+        [[deprecated("no longer necessary")]]
         void registerWithObservables(const ext::shared_ptr<Observer>&);
+
         Size unregisterWith(const ext::shared_ptr<Observable>&);
         void unregisterWithAll();
 
@@ -342,9 +376,9 @@ namespace QuantLib {
         set_type observables_;
     };
 
-	namespace detail {
-		class Signal;
-	}
+    namespace detail {
+        class Signal;
+    }
 
     //! Object that notifies its changes to a set of observers
     /*! \ingroup patterns */
@@ -352,7 +386,7 @@ namespace QuantLib {
         friend class Observer;
         friend class ObservableSettings;
       private:
-        typedef boost::unordered_set<ext::shared_ptr<Observer::Proxy>> set_type;
+        typedef std::unordered_set<ext::shared_ptr<Observer::Proxy>> set_type;
       public:
         typedef set_type::iterator iterator;
 
