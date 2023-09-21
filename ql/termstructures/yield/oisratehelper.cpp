@@ -19,6 +19,7 @@
 */
 
 #include <ql/instruments/makeois.hpp>
+#include <ql/instruments/simplifynotificationgraph.hpp>
 #include <ql/pricingengines/swap/discountingswapengine.hpp>
 #include <ql/termstructures/yield/oisratehelper.hpp>
 #include <ql/utilities/null_deleter.hpp>
@@ -51,6 +52,10 @@ namespace QuantLib {
 
         overnightIndex_ =
             ext::dynamic_pointer_cast<OvernightIndex>(overnightIndex->clone(termStructureHandle_));
+        // We want to be notified of changes of fixings, but we don't
+        // want notifications from termStructureHandle_ (they would
+        // interfere with bootstrapping.)
+        overnightIndex_->unregisterWith(termStructureHandle_);
 
         registerWith(overnightIndex_);
         registerWith(discountHandle_);
@@ -78,6 +83,8 @@ namespace QuantLib {
         } else {
             swap_ = tmp;
         }
+
+        simplifyNotificationGraph(*swap_, true);
 
         earliestDate_ = swap_->startDate();
         maturityDate_ = swap_->maturityDate();
@@ -161,6 +168,10 @@ namespace QuantLib {
 
         auto clonedOvernightIndex =
             ext::dynamic_pointer_cast<OvernightIndex>(overnightIndex->clone(termStructureHandle_));
+        // We want to be notified of changes of fixings, but we don't
+        // want notifications from termStructureHandle_ (they would
+        // interfere with bootstrapping.)
+        clonedOvernightIndex->unregisterWith(termStructureHandle_);
 
         registerWith(clonedOvernightIndex);
         registerWith(discountHandle_);
