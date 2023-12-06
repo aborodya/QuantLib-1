@@ -244,9 +244,6 @@
     <Filter Include="experimental">
       <UniqueIdentifier>{4eadb3fc-a4ce-4e0c-bfe5-f23777a30a8d}</UniqueIdentifier>
     </Filter>
-    <Filter Include="experimental\amortizingbonds">
-      <UniqueIdentifier>{101d6cdd-3e77-48cd-8bec-c84a252324f0}</UniqueIdentifier>
-    </Filter>
     <Filter Include="experimental\averageois">
       <UniqueIdentifier>{33f1be16-e858-4cfe-ba9c-483609826221}</UniqueIdentifier>
     </Filter>
@@ -1239,6 +1236,9 @@
     <ClInclude Include="ql\math\randomnumbers\boxmullergaussianrng.hpp">
       <Filter>math\randomnumbers</Filter>
     </ClInclude>
+    <ClInclude Include="ql\math\randomnumbers\burley2020sobolrsg.hpp">
+      <Filter>math\randomnumbers</Filter>
+    </ClInclude>
     <ClInclude Include="ql\math\randomnumbers\centrallimitgaussianrng.hpp">
       <Filter>math\randomnumbers</Filter>
     </ClInclude>
@@ -1291,6 +1291,9 @@
       <Filter>math\randomnumbers</Filter>
     </ClInclude>
     <ClInclude Include="ql\math\randomnumbers\stochasticcollocationinvcdf.hpp">
+      <Filter>math\randomnumbers</Filter>
+    </ClInclude>
+    <ClInclude Include="ql\math\randomnumbers\xoshiro256starstaruniformrng.hpp">
       <Filter>math\randomnumbers</Filter>
     </ClInclude>
     <ClInclude Include="ql\math\solvers1d\all.hpp">
@@ -3603,18 +3606,6 @@
     <ClInclude Include="ql\experimental\commodities\unitofmeasureconversionmanager.hpp">
       <Filter>experimental\commodities</Filter>
     </ClInclude>
-    <ClInclude Include="ql\experimental\amortizingbonds\all.hpp">
-      <Filter>experimental\amortizingbonds</Filter>
-    </ClInclude>
-    <ClInclude Include="ql\experimental\amortizingbonds\amortizingcmsratebond.hpp">
-      <Filter>experimental\amortizingbonds</Filter>
-    </ClInclude>
-    <ClInclude Include="ql\experimental\amortizingbonds\amortizingfixedratebond.hpp">
-      <Filter>experimental\amortizingbonds</Filter>
-    </ClInclude>
-    <ClInclude Include="ql\experimental\amortizingbonds\amortizingfloatingratebond.hpp">
-      <Filter>experimental\amortizingbonds</Filter>
-    </ClInclude>
     <ClInclude Include="ql\experimental\averageois\all.hpp">
       <Filter>experimental\averageois</Filter>
     </ClInclude>
@@ -4970,6 +4961,9 @@
     <ClCompile Include="ql\math\matrixutilities\tqreigendecomposition.cpp">
       <Filter>math\matrixutilities</Filter>
     </ClCompile>
+    <ClCompile Include="ql\math\randomnumbers\burley2020sobolrsg.cpp">
+      <Filter>math\randomnumbers</Filter>
+    </ClCompile>
     <ClCompile Include="ql\math\randomnumbers\faurersg.cpp">
       <Filter>math\randomnumbers</Filter>
     </ClCompile>
@@ -5001,6 +4995,9 @@
       <Filter>math\randomnumbers</Filter>
     </ClCompile>
     <ClCompile Include="ql\math\randomnumbers\stochasticcollocationinvcdf.cpp">
+      <Filter>math\randomnumbers</Filter>
+    </ClCompile>
+    <ClCompile Include="ql\math\randomnumbers\xoshiro256starstaruniformrng.cpp">
       <Filter>math\randomnumbers</Filter>
     </ClCompile>
     <ClCompile Include="ql\math\optimization\armijo.cpp">

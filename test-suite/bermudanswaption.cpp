@@ -19,7 +19,8 @@
  FOR A PARTICULAR PURPOSE.  See the license for more details.
 */
 
-#include "bermudanswaption.hpp"
+#include "preconditions.hpp"
+#include "toplevelfixture.hpp"
 #include "utilities.hpp"
 #include <ql/cashflows/coupon.hpp>
 #include <ql/cashflows/iborcoupon.hpp>
@@ -106,8 +107,11 @@ namespace bermudan_swaption_test {
 
 }
 
+BOOST_FIXTURE_TEST_SUITE(QuantLibTest, TopLevelFixture)
 
-void BermudanSwaptionTest::testCachedValues() {
+BOOST_AUTO_TEST_SUITE(BermudanSwaptionTest)
+
+BOOST_AUTO_TEST_CASE(testCachedValues) {
 
     BOOST_TEST_MESSAGE(
         "Testing Bermudan swaption with HW model against cached values...");
@@ -235,7 +239,7 @@ void BermudanSwaptionTest::testCachedValues() {
                     << "expected:   " << otmValue);
 }
 
-void BermudanSwaptionTest::testCachedG2Values() {
+BOOST_AUTO_TEST_CASE(testCachedG2Values, *precondition(if_speed(Fast))) {
     BOOST_TEST_MESSAGE(
         "Testing Bermudan swaption with G2 model against cached values...");
 
@@ -263,6 +267,7 @@ void BermudanSwaptionTest::testCachedG2Values() {
         for (const auto& i : swap->fixedLeg()) {
             exerciseDates.push_back(ext::dynamic_pointer_cast<Coupon>(i)->accrualStartDate());
         }
+
         swaptions.push_back(ext::make_shared<Swaption>(swap,
             ext::make_shared<BermudanExercise>(exerciseDates)));
     }
@@ -311,7 +316,7 @@ void BermudanSwaptionTest::testCachedG2Values() {
     }
 }
 
-void BermudanSwaptionTest::testTreeEngineTimeSnapping() {
+BOOST_AUTO_TEST_CASE(testTreeEngineTimeSnapping) {
     BOOST_TEST_MESSAGE("Testing snap of exercise dates for discretized swaption...");
 
     Date today = Date(8, Jul, 2021);
@@ -343,6 +348,7 @@ void BermudanSwaptionTest::testTreeEngineTimeSnapping() {
 
         auto callDate = initialCallDate + i * Days;
         if (calendar.isBusinessDay(callDate)) {
+
             auto bermudanSwaption = makeBermudanSwaption(callDate);
 
             auto model = ext::make_shared<HullWhite>(termStructure);
@@ -371,15 +377,6 @@ void BermudanSwaptionTest::testTreeEngineTimeSnapping() {
     }
 }
 
-test_suite* BermudanSwaptionTest::suite(SpeedLevel speed) {
-    auto* suite = BOOST_TEST_SUITE("Bermudan swaption tests");
+BOOST_AUTO_TEST_SUITE_END()
 
-    suite->add(QUANTLIB_TEST_CASE(&BermudanSwaptionTest::testCachedValues));
-    suite->add(QUANTLIB_TEST_CASE(&BermudanSwaptionTest::testTreeEngineTimeSnapping));
-
-    if (speed <= Fast) {
-        suite->add(QUANTLIB_TEST_CASE(&BermudanSwaptionTest::testCachedG2Values));
-    }
-
-    return suite;
-}
+BOOST_AUTO_TEST_SUITE_END()
