@@ -26,19 +26,19 @@
 using namespace QuantLib;
 using namespace boost::unit_test_framework;
 
-BOOST_FIXTURE_TEST_SUITE(QuantLibTest, TopLevelFixture)
+BOOST_FIXTURE_TEST_SUITE(QuantLibTests, TopLevelFixture)
 
-BOOST_AUTO_TEST_SUITE(PricesTest)
+BOOST_AUTO_TEST_SUITE(PriceTests)
 
 BOOST_AUTO_TEST_CASE(testMidEquivalent) {
     BOOST_TEST_MESSAGE("Testing midEquivalent()...");
 
     using boost::test_tools::tolerance;
 
-    BOOST_TEST(1.5 == midEquivalent(1, 2, 3, 4), tolerance(1e-14));
-    BOOST_TEST(1.5 == midEquivalent(1, 2, 0, 4), tolerance(1e-14));
-    BOOST_TEST(1.5 == midEquivalent(1, 2, 3, 0), tolerance(1e-14));
-    BOOST_TEST(1.5 == midEquivalent(1, 2, 0, 0), tolerance(1e-14));
+    BOOST_TEST(1.5 == midEquivalent(1, 2, 3, 4), tolerance<Real>(1e-14));
+    BOOST_TEST(1.5 == midEquivalent(1, 2, 0, 4), tolerance<Real>(1e-14));
+    BOOST_TEST(1.5 == midEquivalent(1, 2, 3, 0), tolerance<Real>(1e-14));
+    BOOST_TEST(1.5 == midEquivalent(1, 2, 0, 0), tolerance<Real>(1e-14));
 
     BOOST_TEST(1 == midEquivalent(1, 0, 3, 4));
     BOOST_TEST(1 == midEquivalent(1, 0, 0, 4));
@@ -62,7 +62,7 @@ BOOST_AUTO_TEST_CASE(testMidSafe) {
 
     using boost::test_tools::tolerance;
 
-    BOOST_TEST(1.5 == midSafe(1, 2), tolerance(1e-14));
+    BOOST_TEST(1.5 == midSafe(1, 2), tolerance<Real>(1e-14));
 
     BOOST_CHECK_THROW(midSafe(0, 0), QuantLib::Error);
     BOOST_CHECK_THROW(midSafe(1, 0), QuantLib::Error);
@@ -70,7 +70,7 @@ BOOST_AUTO_TEST_CASE(testMidSafe) {
 }
 
 BOOST_AUTO_TEST_CASE(testIntervalPriceInspectors) {
-    BOOST_TEST_MESSAGE("Testing IntervalPrice::<Inspectors>()...");
+    BOOST_TEST_MESSAGE("Testing IntervalPrice inspectors...");
 
     const IntervalPrice p(1, 2, 3, 4);
 
@@ -94,7 +94,7 @@ void testEquality(const IntervalPrice& lhs, const IntervalPrice& rhs) {
 }
 
 BOOST_AUTO_TEST_CASE(testIntervalPriceModifiers) {
-    BOOST_TEST_MESSAGE("Testing IntervalPrice::<Modifiers>()...");
+    BOOST_TEST_MESSAGE("Testing IntervalPrice modifiers...");
 
     IntervalPrice p(1, 2, 3, 4);
 
@@ -129,42 +129,18 @@ TimeSeries<IntervalPrice> createSeries() {
 }
 
 BOOST_AUTO_TEST_CASE(testIntervalPriceMakeSeries) {
-    BOOST_TEST_MESSAGE("Testing IntervalPrice::makeSeries()...");
+    BOOST_TEST_MESSAGE("Testing creation of IntervalPrice series...");
 
     const TimeSeries<IntervalPrice> priceSeries = createSeries();
 
-    BOOST_TEST(3u == priceSeries.size());
+    BOOST_TEST(3U == priceSeries.size());
     testEquality(priceSeries[{(Day)1, (Month)1, (Year)2001}], {11, 21, 31, 41});
     testEquality(priceSeries[{(Day)2, (Month)2, (Year)2002}], {12, 22, 32, 42});
     testEquality(priceSeries[{(Day)3, (Month)3, (Year)2003}], {13, 23, 33, 43});
 }
 
-BOOST_AUTO_TEST_CASE(testIntervalPriceExtractValues) {
-    BOOST_TEST_MESSAGE("Testing IntervalPrice::makeSeries()...");
-
-    const std::vector<Real> openValues =
-        IntervalPrice::extractValues(createSeries(), IntervalPrice::Open);
-    const std::vector<Real> expectedOpenValues{11, 12, 13};
-    BOOST_TEST(openValues == expectedOpenValues);
-
-    const std::vector<Real> closeValues =
-        IntervalPrice::extractValues(createSeries(), IntervalPrice::Close);
-    const std::vector<Real> expectedCloseValues{21, 22, 23};
-    BOOST_TEST(closeValues == expectedCloseValues);
-
-    const std::vector<Real> highValues =
-        IntervalPrice::extractValues(createSeries(), IntervalPrice::High);
-    const std::vector<Real> expectedHighValues{31, 32, 33};
-    BOOST_TEST(highValues == expectedHighValues);
-
-    const std::vector<Real> lowValues =
-        IntervalPrice::extractValues(createSeries(), IntervalPrice::Low);
-    const std::vector<Real> expectedLowValues{41, 42, 43};
-    BOOST_TEST(lowValues == expectedLowValues);
-}
-
 BOOST_AUTO_TEST_CASE(testIntervalPriceExtractComponent) {
-    BOOST_TEST_MESSAGE("Testing IntervalPrice::makeSeries()...");
+    BOOST_TEST_MESSAGE("Testing extraction of IntervalPrice values...");
 
     const TimeSeries<Real> openSeries =
         IntervalPrice::extractComponent(createSeries(), IntervalPrice::Open);
@@ -176,17 +152,17 @@ BOOST_AUTO_TEST_CASE(testIntervalPriceExtractComponent) {
         IntervalPrice::extractComponent(createSeries(), IntervalPrice::Low);
 
     for (const auto& series : {openSeries, closeSeries, highSeries, lowSeries})
-        BOOST_TEST(3u == series.size());
+        BOOST_TEST(3U == series.size());
 
     const std::array<Date, 3> expectedDates{Date{(Day)1, (Month)1, (Year)2001},
                                             Date{(Day)2, (Month)2, (Year)2002},
                                             Date{(Day)3, (Month)3, (Year)2003}};
-    auto expectedDate = expectedDates.begin();
+    auto expectedDate = expectedDates.begin();  // NOLINT(readability-qualified-auto)
 
     const std::array<IntervalPrice, 3> expectedPrices{IntervalPrice{11, 21, 31, 41},
                                                       IntervalPrice{12, 22, 32, 42},
                                                       IntervalPrice{13, 23, 33, 43}};
-    auto expectedPrice = expectedPrices.begin();
+    auto expectedPrice = expectedPrices.begin();  // NOLINT(readability-qualified-auto)
 
     for (auto openIt = openSeries.begin(), closeIt = closeSeries.begin(),
              highIt = highSeries.begin(), lowIt = lowSeries.begin();

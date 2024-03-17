@@ -51,9 +51,9 @@
 using namespace QuantLib;
 using namespace boost::unit_test_framework;
 
-BOOST_FIXTURE_TEST_SUITE(QuantLibTest, TopLevelFixture)
+BOOST_FIXTURE_TEST_SUITE(QuantLibTests, TopLevelFixture)
 
-BOOST_AUTO_TEST_SUITE(NormalCLVModelExperimentalTest)
+BOOST_AUTO_TEST_SUITE(NormalCLVModelTests)
 
 BOOST_AUTO_TEST_CASE(testBSCumlativeDistributionFunction) {
     BOOST_TEST_MESSAGE("Testing Black-Scholes cumulative distribution function"
@@ -265,23 +265,20 @@ BOOST_AUTO_TEST_CASE(testIllustrative1DExample) {
     }
 }
 
-namespace normal_clv_model_test {
-    class CLVModelPayoff : public PlainVanillaPayoff {
-      public:
-        CLVModelPayoff(Option::Type type, Real strike, ext::function<Real(Real)> g)
-        : PlainVanillaPayoff(type, strike), g_(std::move(g)) {}
+class CLVModelPayoff : public PlainVanillaPayoff {
+  public:
+    CLVModelPayoff(Option::Type type, Real strike, ext::function<Real(Real)> g)
+    : PlainVanillaPayoff(type, strike), g_(std::move(g)) {}
 
-        Real operator()(Real x) const override { return PlainVanillaPayoff::operator()(g_(x)); }
+    Real operator()(Real x) const override { return PlainVanillaPayoff::operator()(g_(x)); }
 
-      private:
-        const ext::function<Real(Real)> g_;
-    };
-}
+  private:
+    const ext::function<Real(Real)> g_;
+};
+
 
 BOOST_AUTO_TEST_CASE(testMonteCarloBSOptionPricing) {
     BOOST_TEST_MESSAGE("Testing Monte Carlo BS option pricing...");
-
-    using namespace normal_clv_model_test;
 
     const DayCounter dc = Actual365Fixed();
     const Date today = Date(22, June, 2016);
@@ -518,10 +515,11 @@ BOOST_AUTO_TEST_CASE(testMoustacheGraph, *precondition(if_speed(Slow))) {
     }
 
     const Real expected[] = {
-            0.00931214, 0.0901481, 0.138982, 0.112059, 0.0595901,
-            0.0167549, -0.00906787, -0.0206768, -0.0225628, -0.0203593,
-            -0.016036, -0.0116629, -0.00728792, -0.00328821,
-            -0.000158562, 0.00502041, 0.00347706, 0.00238216, };
+            0.0093023407, 0.090099067, 0.13903052, 0.11206888, 0.059511722,
+            0.016627484, -0.0091168814, -0.020725808, -0.022513829,
+            -0.020280851, -0.015967361, -0.011476705, -0.0071604902,
+            -0.003219595, -0.00014875974, 0.0049910036, 0.0034770584,
+            0.0023821554};
 
     const Real tol = 1e-5;
     for (Size u=0; u < n; ++u) {

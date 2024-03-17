@@ -1,7 +1,7 @@
 /* -*- mode: c++; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- */
 
 /*
- Copyright (C) 2008 Roland Lichters
+ Copyright (C) 2023 Klaus Spanderen
 
  This file is part of QuantLib, a free-software/open-source library
  for financial quantitative analysts and developers - http://quantlib.org/
@@ -17,11 +17,19 @@
  FOR A PARTICULAR PURPOSE.  See the license for more details.
 */
 
-#ifndef quantlib_riskybond_hpp
-#define quantlib_riskybond_hpp
+ /*! \file expm1.hpp
+    \brief complex versions of expm1 and logp1
+*/
 
-// Deprecated in version 1.29
-#pragma message("Warning: this file is empty and will disappear in a future release; do not include it.")
+#ifndef quantlib_expm1_hpp
+#define quantlib_expm1_hpp
 
+#include <ql/types.hpp>
+#include <complex>
 
+namespace QuantLib {
+    std::complex<Real> expm1(const std::complex<Real>& z);
+    std::complex<Real> log1p(const std::complex<Real>& z);
+}
 #endif
+

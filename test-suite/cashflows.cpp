@@ -42,9 +42,9 @@
 using namespace QuantLib;
 using namespace boost::unit_test_framework;
 
-BOOST_FIXTURE_TEST_SUITE(QuantLibTest, TopLevelFixture)
+BOOST_FIXTURE_TEST_SUITE(QuantLibTests, TopLevelFixture)
 
-BOOST_AUTO_TEST_SUITE(CashFlowTest)
+BOOST_AUTO_TEST_SUITE(CashFlowTests)
 
 BOOST_AUTO_TEST_CASE(testSettings) {
 
@@ -374,6 +374,38 @@ BOOST_AUTO_TEST_CASE(testIrregularFirstCouponReferenceDatesAtEndOfMonth) {
     if (firstCoupon->referencePeriodStart() != Date(31, August, 2016))
         BOOST_ERROR("Expected reference start date at end of month, "
                     "got " << firstCoupon->referencePeriodStart());
+}
+
+BOOST_AUTO_TEST_CASE(testIrregularFirstCouponReferenceDatesAtEndOfCalendarMonth) {
+    BOOST_TEST_MESSAGE("Testing irregular first coupon reference dates at end of calendar month with end of month enabled...");
+    Schedule schedule =
+        MakeSchedule()
+        .withCalendar(UnitedStates(UnitedStates::GovernmentBond))
+        .from(Date(30, September, 2017)).to(Date(30, September, 2022))
+        .withTenor(6*Months)
+        .withConvention(Unadjusted)
+        .withTerminationDateConvention(Unadjusted)
+        .withFirstDate(Date(31, March, 2018))
+        .withNextToLastDate(Date(31, March, 2022))
+        .endOfMonth()
+        .backwards();
+
+    Leg leg = FixedRateLeg(schedule)
+        .withNotionals(100.0)
+        .withCouponRates(0.01875, ActualActual(ActualActual::ISMA));
+
+    for (const auto& elem : leg) {
+        BOOST_TEST_MESSAGE("Reference Period: " << ext::dynamic_pointer_cast<Coupon>(elem)->referencePeriodStart() << " - " << ext::dynamic_pointer_cast<Coupon>(elem)->referencePeriodEnd());
+        BOOST_TEST_MESSAGE("Amount: " << ext::dynamic_pointer_cast<Coupon>(elem)->amount());
+    }
+
+    ext::shared_ptr<Coupon> firstCoupon =
+        ext::dynamic_pointer_cast<Coupon>(leg.front());
+    if (firstCoupon->referencePeriodStart() != Date(30, September, 2017))
+        BOOST_ERROR("Expected reference start date at end of calendar day of the month, "
+                    "got " << firstCoupon->referencePeriodStart());
+    // Expect first cashflow to be 0.9375
+    BOOST_TEST(firstCoupon->amount() == 0.9375, boost::test_tools::tolerance<Real>(0.0001));
 }
 
 BOOST_AUTO_TEST_CASE(testIrregularLastCouponReferenceDatesAtEndOfMonth) {
